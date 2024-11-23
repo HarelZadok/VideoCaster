@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		0A9C7BEDF96303A6E923C30A /* Pods_VideoCasterTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 571DB0A81EAAC3E68EF63B23 /* Pods_VideoCasterTests.framework */; };
+		0C93508FC895C4F78C9034AC /* Pods_VideoCaster.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3764530DAF1F2241D69A4EBB /* Pods_VideoCaster.framework */; };
+		3A476015E51F8919E0EDC61B /* Pods_VideoCaster_VideoCasterUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D989F0DD99756ECA5193992 /* Pods_VideoCaster_VideoCasterUITests.framework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		F1F67CE02CED7FA2002042C5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -24,14 +30,36 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		290D36200A075A6E392C0DF1 /* Pods-VideoCaster.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoCaster.release.xcconfig"; path = "Target Support Files/Pods-VideoCaster/Pods-VideoCaster.release.xcconfig"; sourceTree = "<group>"; };
+		3764530DAF1F2241D69A4EBB /* Pods_VideoCaster.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_VideoCaster.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		571DB0A81EAAC3E68EF63B23 /* Pods_VideoCasterTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_VideoCasterTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		6594699D7691C6BA0505C929 /* Pods-VideoCasterTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoCasterTests.debug.xcconfig"; path = "Target Support Files/Pods-VideoCasterTests/Pods-VideoCasterTests.debug.xcconfig"; sourceTree = "<group>"; };
+		7D989F0DD99756ECA5193992 /* Pods_VideoCaster_VideoCasterUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_VideoCaster_VideoCasterUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		86952098B1353186ACD33C6A /* Pods-VideoCasterTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoCasterTests.release.xcconfig"; path = "Target Support Files/Pods-VideoCasterTests/Pods-VideoCasterTests.release.xcconfig"; sourceTree = "<group>"; };
+		AF9BDCAB97BA75ADB77C1C53 /* Pods-VideoCaster-VideoCasterUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoCaster-VideoCasterUITests.release.xcconfig"; path = "Target Support Files/Pods-VideoCaster-VideoCasterUITests/Pods-VideoCaster-VideoCasterUITests.release.xcconfig"; sourceTree = "<group>"; };
+		C2C7A728EF6DA818A51D3B2D /* Pods-VideoCaster.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoCaster.debug.xcconfig"; path = "Target Support Files/Pods-VideoCaster/Pods-VideoCaster.debug.xcconfig"; sourceTree = "<group>"; };
+		E18866248B56F07ABA8CD55F /* Pods-VideoCaster-VideoCasterUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoCaster-VideoCasterUITests.debug.xcconfig"; path = "Target Support Files/Pods-VideoCaster-VideoCasterUITests/Pods-VideoCaster-VideoCasterUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		F1F67CCF2CED7FA1002042C5 /* VideoCaster.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VideoCaster.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F1F67CDF2CED7FA2002042C5 /* VideoCasterTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VideoCasterTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F1F67CE92CED7FA2002042C5 /* VideoCasterUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VideoCasterUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		F1F67D0C2CED81DA002042C5 /* Exceptions for "VideoCaster" folder in "VideoCaster" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = F1F67CCE2CED7FA1002042C5 /* VideoCaster */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		F1F67CD12CED7FA1002042C5 /* VideoCaster */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				F1F67D0C2CED81DA002042C5 /* Exceptions for "VideoCaster" folder in "VideoCaster" target */,
+			);
 			path = VideoCaster;
 			sourceTree = "<group>";
 		};
@@ -52,6 +80,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0C93508FC895C4F78C9034AC /* Pods_VideoCaster.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -59,6 +88,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0A9C7BEDF96303A6E923C30A /* Pods_VideoCasterTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -66,12 +96,36 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3A476015E51F8919E0EDC61B /* Pods_VideoCaster_VideoCasterUITests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		553FEC90C598506E9C356B23 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				3764530DAF1F2241D69A4EBB /* Pods_VideoCaster.framework */,
+				7D989F0DD99756ECA5193992 /* Pods_VideoCaster_VideoCasterUITests.framework */,
+				571DB0A81EAAC3E68EF63B23 /* Pods_VideoCasterTests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		7B324DA81E6377810A399AF4 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				C2C7A728EF6DA818A51D3B2D /* Pods-VideoCaster.debug.xcconfig */,
+				290D36200A075A6E392C0DF1 /* Pods-VideoCaster.release.xcconfig */,
+				E18866248B56F07ABA8CD55F /* Pods-VideoCaster-VideoCasterUITests.debug.xcconfig */,
+				AF9BDCAB97BA75ADB77C1C53 /* Pods-VideoCaster-VideoCasterUITests.release.xcconfig */,
+				6594699D7691C6BA0505C929 /* Pods-VideoCasterTests.debug.xcconfig */,
+				86952098B1353186ACD33C6A /* Pods-VideoCasterTests.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		F1F67CC62CED7FA1002042C5 = {
 			isa = PBXGroup;
 			children = (
@@ -79,6 +133,8 @@
 				F1F67CE22CED7FA2002042C5 /* VideoCasterTests */,
 				F1F67CEC2CED7FA2002042C5 /* VideoCasterUITests */,
 				F1F67CD02CED7FA1002042C5 /* Products */,
+				7B324DA81E6377810A399AF4 /* Pods */,
+				553FEC90C598506E9C356B23 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -99,9 +155,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F1F67CF32CED7FA2002042C5 /* Build configuration list for PBXNativeTarget "VideoCaster" */;
 			buildPhases = (
+				BA1F033F7DEF990CC8160ED0 /* [CP] Check Pods Manifest.lock */,
 				F1F67CCB2CED7FA1002042C5 /* Sources */,
 				F1F67CCC2CED7FA1002042C5 /* Frameworks */,
 				F1F67CCD2CED7FA1002042C5 /* Resources */,
+				19AD207A77700032BBAFCBE0 /* [CP] Embed Pods Frameworks */,
+				5EEDB662201CC5C950F06DAD /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -111,8 +170,6 @@
 				F1F67CD12CED7FA1002042C5 /* VideoCaster */,
 			);
 			name = VideoCaster;
-			packageProductDependencies = (
-			);
 			productName = VideoCaster;
 			productReference = F1F67CCF2CED7FA1002042C5 /* VideoCaster.app */;
 			productType = "com.apple.product-type.application";
@@ -121,6 +178,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F1F67CF62CED7FA2002042C5 /* Build configuration list for PBXNativeTarget "VideoCasterTests" */;
 			buildPhases = (
+				78C368AABE2B5AD2B8729336 /* [CP] Check Pods Manifest.lock */,
 				F1F67CDB2CED7FA2002042C5 /* Sources */,
 				F1F67CDC2CED7FA2002042C5 /* Frameworks */,
 				F1F67CDD2CED7FA2002042C5 /* Resources */,
@@ -134,8 +192,6 @@
 				F1F67CE22CED7FA2002042C5 /* VideoCasterTests */,
 			);
 			name = VideoCasterTests;
-			packageProductDependencies = (
-			);
 			productName = VideoCasterTests;
 			productReference = F1F67CDF2CED7FA2002042C5 /* VideoCasterTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -144,9 +200,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F1F67CF92CED7FA2002042C5 /* Build configuration list for PBXNativeTarget "VideoCasterUITests" */;
 			buildPhases = (
+				987231F562BE833C68DB74AD /* [CP] Check Pods Manifest.lock */,
 				F1F67CE52CED7FA2002042C5 /* Sources */,
 				F1F67CE62CED7FA2002042C5 /* Frameworks */,
 				F1F67CE72CED7FA2002042C5 /* Resources */,
+				B3BAD78A3A28D90D9EB97A9C /* [CP] Embed Pods Frameworks */,
+				137AD87D50E496ECDB94A17B /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -157,8 +216,6 @@
 				F1F67CEC2CED7FA2002042C5 /* VideoCasterUITests */,
 			);
 			name = VideoCasterUITests;
-			packageProductDependencies = (
-			);
 			productName = VideoCasterUITests;
 			productReference = F1F67CE92CED7FA2002042C5 /* VideoCasterUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -230,6 +287,143 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		137AD87D50E496ECDB94A17B /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-VideoCaster-VideoCasterUITests/Pods-VideoCaster-VideoCasterUITests-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-VideoCaster-VideoCasterUITests/Pods-VideoCaster-VideoCasterUITests-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-VideoCaster-VideoCasterUITests/Pods-VideoCaster-VideoCasterUITests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		19AD207A77700032BBAFCBE0 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-VideoCaster/Pods-VideoCaster-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-VideoCaster/Pods-VideoCaster-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-VideoCaster/Pods-VideoCaster-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		5EEDB662201CC5C950F06DAD /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-VideoCaster/Pods-VideoCaster-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-VideoCaster/Pods-VideoCaster-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-VideoCaster/Pods-VideoCaster-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		78C368AABE2B5AD2B8729336 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-VideoCasterTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		987231F562BE833C68DB74AD /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-VideoCaster-VideoCasterUITests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B3BAD78A3A28D90D9EB97A9C /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-VideoCaster-VideoCasterUITests/Pods-VideoCaster-VideoCasterUITests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-VideoCaster-VideoCasterUITests/Pods-VideoCaster-VideoCasterUITests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-VideoCaster-VideoCasterUITests/Pods-VideoCaster-VideoCasterUITests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		BA1F033F7DEF990CC8160ED0 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-VideoCaster-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		F1F67CCB2CED7FA1002042C5 /* Sources */ = {
@@ -390,20 +584,29 @@
 		};
 		F1F67CF42CED7FA2002042C5 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C2C7A728EF6DA818A51D3B2D /* Pods-VideoCaster.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = VideoCaster/VideoCaster.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"VideoCaster/Preview Content\"";
 				DEVELOPMENT_TEAM = 2Z78JZ8JT5;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VideoCaster/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				INFOPLIST_KEY_NSAppleMusicUsageDescription = "VideoCaster uses media player library to grant access to the playback in the background.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "VideoCaster uses the local network to discover Cast-enabled devices on your WiFi network.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need access to your videos to allow casting them to your TV.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -419,20 +622,29 @@
 		};
 		F1F67CF52CED7FA2002042C5 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 290D36200A075A6E392C0DF1 /* Pods-VideoCaster.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = VideoCaster/VideoCaster.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"VideoCaster/Preview Content\"";
 				DEVELOPMENT_TEAM = 2Z78JZ8JT5;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VideoCaster/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				INFOPLIST_KEY_NSAppleMusicUsageDescription = "VideoCaster uses media player library to grant access to the playback in the background.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "VideoCaster uses the local network to discover Cast-enabled devices on your WiFi network.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "We need access to your videos to allow casting them to your TV.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -448,6 +660,7 @@
 		};
 		F1F67CF72CED7FA2002042C5 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 6594699D7691C6BA0505C929 /* Pods-VideoCasterTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -467,6 +680,7 @@
 		};
 		F1F67CF82CED7FA2002042C5 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 86952098B1353186ACD33C6A /* Pods-VideoCasterTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -486,6 +700,7 @@
 		};
 		F1F67CFA2CED7FA2002042C5 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E18866248B56F07ABA8CD55F /* Pods-VideoCaster-VideoCasterUITests.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -503,6 +718,7 @@
 		};
 		F1F67CFB2CED7FA2002042C5 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AF9BDCAB97BA75ADB77C1C53 /* Pods-VideoCaster-VideoCasterUITests.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;

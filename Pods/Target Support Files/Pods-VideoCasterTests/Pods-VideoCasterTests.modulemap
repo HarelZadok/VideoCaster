@@ -1,0 +1,6 @@
+framework module Pods_VideoCasterTests {
+  umbrella header "Pods-VideoCasterTests-umbrella.h"
+
+  export *
+  module * { export * }
+}
