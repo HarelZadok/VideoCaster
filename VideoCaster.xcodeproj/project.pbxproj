@@ -29,6 +29,19 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		F170F2B42CF2D8830011F76F /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		290D36200A075A6E392C0DF1 /* Pods-VideoCaster.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VideoCaster.release.xcconfig"; path = "Target Support Files/Pods-VideoCaster/Pods-VideoCaster.release.xcconfig"; sourceTree = "<group>"; };
 		3764530DAF1F2241D69A4EBB /* Pods_VideoCaster.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_VideoCaster.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -161,6 +174,7 @@
 				F1F67CCD2CED7FA1002042C5 /* Resources */,
 				19AD207A77700032BBAFCBE0 /* [CP] Embed Pods Frameworks */,
 				5EEDB662201CC5C950F06DAD /* [CP] Copy Pods Resources */,
+				F170F2B42CF2D8830011F76F /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -252,6 +266,8 @@
 			);
 			mainGroup = F1F67CC62CED7FA1002042C5;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F1F67CD02CED7FA1002042C5 /* Products */;
 			projectDirPath = "";
@@ -523,6 +539,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = "";
 			};
 			name = Debug;
 		};
@@ -578,6 +595,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = "";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;

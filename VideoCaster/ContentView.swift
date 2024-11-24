@@ -15,7 +15,7 @@ import MediaPlayer
 struct Video: Identifiable {
     let id: String
     let url: URL
-    let creationDate: Date?
+    let creationDate: Foundation.Date?
     var thumbnail: UIImage? // Added thumbnail property
 }
 
@@ -37,16 +37,27 @@ class ThumbnailCache {
 struct ContentView: View {
     @State private var videos: [Video] = []
     @State private var showingPermissionDeniedAlert = false
-    @State private var isServerRunning: Bool
-        
-    init() {
-        isServerRunning = false
-    }
+    @State private var isServerRunning: Bool = false
+    @State private var isConvertingFile: Bool = false
+    @State private var searchText: String = ""
+    @State private var isFetching: Bool = false
 
     var body: some View {
+        let videoList: [Video] = searchText.isEmpty ? videos : videos.filter { $0.url.absoluteString.localizedCaseInsensitiveContains(searchText) }
         NavigationView {
-            List(videos) { video in
-                VideoRow(video: video)
+            ScrollView {
+                LazyVStack {
+                    ForEach(videoList) { video in
+                        VideoRow(video: video)
+                    }
+                }
+                .padding()
+                .background(Color(.secondarySystemBackground))
+                .cornerRadius(12)
+                .padding()
+            }
+            .refreshable {
+                await fetchVideos()
             }
             .navigationTitle("Your Videos")
             .navigationBarItems(
@@ -66,6 +77,7 @@ struct ContentView: View {
             .onAppear {
                 checkPhotoLibraryPermission()
                 LocalHTTPServer.shared.isRunningListener = $isServerRunning
+                LocalHTTPServer.shared.isConvertingFile = $isConvertingFile
             }
             .onDisappear {
                 videos.removeAll()
@@ -78,6 +90,8 @@ struct ContentView: View {
                 )
             }
         }
+        .searchable(text: $searchText, placement: .toolbar)
+        .background(Color(.systemBackground))
     }
 
     func checkPhotoLibraryPermission() {
@@ -85,11 +99,15 @@ struct ContentView: View {
 
         switch status {
         case .authorized, .limited:
-            fetchVideos()
+            Task {
+                await fetchVideos()
+            }
         case .notDetermined:
             PHPhotoLibrary.requestAuthorization { newStatus in
                 if newStatus == .authorized || newStatus == .limited {
-                    fetchVideos()
+                    Task {
+                        await fetchVideos()
+                    }
                 } else {
                     showingPermissionDeniedAlert = true
                 }
@@ -99,7 +117,12 @@ struct ContentView: View {
         }
     }
 
-    func fetchVideos() {
+    func fetchVideos() async {
+        if isFetching {
+            return
+        }
+        isFetching = true
+        
         let fetchOptions = PHFetchOptions()
         fetchOptions.predicate = NSPredicate(format: "mediaType == %d", PHAssetMediaType.video.rawValue)
         fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
@@ -107,6 +130,8 @@ struct ContentView: View {
         let assets = PHAsset.fetchAssets(with: .video, options: fetchOptions)
 
         let dispatchGroup = DispatchGroup()
+        
+        videos.removeAll()
 
         assets.enumerateObjects { asset, _, _ in
             dispatchGroup.enter()
@@ -121,13 +146,14 @@ struct ContentView: View {
 
                     let cacheKey = asset.localIdentifier
                     dispatchGroup.enter()
-
+                    
                     if let cachedImage = ThumbnailCache.shared.image(forKey: cacheKey) {
                         if !processedIDs.contains(video.id) {
                             processedIDs.insert(video.id)
                             video.thumbnail = cachedImage
                             self.videos.append(video)
                         }
+                        dispatchGroup.leave()
                         dispatchGroup.leave()
                     } else {
                         let thumbnailSize = CGSize(width: 100, height: 100)
@@ -150,7 +176,7 @@ struct ContentView: View {
         }
 
         dispatchGroup.notify(queue: .main) {
-            
+            isFetching = false
         }
     }
 }
@@ -231,7 +257,7 @@ struct VideoRow: View {
 
                 Task {
                     // Fetch video duration
-                    let asset = AVAsset(url: mp4URL)
+                    let asset = AVAsset(url: video.url)
                     let duration = try await asset.load(.duration)
 
                     // Create Media Metadata
@@ -240,7 +266,7 @@ struct VideoRow: View {
                     
                     // Use GCKMediaInformationBuilder
                     let mediaInfoBuilder = GCKMediaInformationBuilder(contentURL: localURL)
-                    mediaInfoBuilder.streamType = GCKMediaStreamType.buffered
+                    mediaInfoBuilder.streamType = GCKMediaStreamType.none
                     mediaInfoBuilder.contentType = "video/mp4"
                     mediaInfoBuilder.metadata = metadata
                     mediaInfoBuilder.streamDuration = duration.seconds
@@ -269,9 +295,10 @@ struct CastButtonView: UIViewRepresentable {
 
 class LocalHTTPServer {
     static let shared = LocalHTTPServer()
-    private var webServer: GCDWebServer?
+    private var webServer: GCDWebServer = GCDWebServer()
     private var _url: URL?
     var isRunningListener: Binding<Bool>?
+    var isConvertingFile: Binding<Bool>?
     
     func startServer(completion: @escaping (URL?) -> Void) {
         if let url = _url {
@@ -290,18 +317,17 @@ class LocalHTTPServer {
 
             // Stop any existing server
             if self.isServerRunning() {
-                self.webServer?.stop()
+                self.stopServer()
             }
-
-            self.webServer = GCDWebServer()
+            
             self._url = mp4URL
-
+            
             // Add a handler for the MP4 file
-            self.webServer?.addHandler(forMethod: "GET", path: "/video.mp4", request: GCDWebServerRequest.self) { request in
+            self.webServer.addHandler(forMethod: "GET", path: "/video.mp4", request: GCDWebServerRequest.self) { request in
                 guard let mp4URL = self._url else {
                     return GCDWebServerErrorResponse(statusCode: 404)
                 }
-
+                
                 let response = GCDWebServerFileResponse(file: mp4URL.path, isAttachment: false)
                 response?.setValue("bytes", forAdditionalHeader: "Accept-Ranges")
                 
@@ -309,20 +335,19 @@ class LocalHTTPServer {
                 if let rangeHeader = request.headers["Range"] {
                     print("Range request: \(rangeHeader)")
                 }
-
+                
                 return response
             }
 
-            self.isRunningListener?.wrappedValue = true
-
             // Start the server
             do {
-                try self.webServer?.start(options: [
-                    GCDWebServerOption_Port: 8080,
+                try self.webServer.start(options: [
+                    GCDWebServerOption_Port: 0,
                     GCDWebServerOption_BindToLocalhost: false,
-                    GCDWebServerOption_AutomaticallySuspendInBackground: false
+                    GCDWebServerOption_AutomaticallySuspendInBackground: false,
                 ])
-                if let serverURL = self.webServer?.serverURL {
+                if let serverURL = self.webServer.serverURL {
+                    self.isRunningListener?.wrappedValue = true
                     completion(serverURL.appendingPathComponent("video.mp4"))
                 } else {
                     completion(nil)
@@ -336,12 +361,12 @@ class LocalHTTPServer {
     }
 
     func stopServer() {
-        webServer?.stop()
+        webServer.stop()
         isRunningListener?.wrappedValue = false
     }
     
     func isServerRunning() -> Bool {
-        webServer?.isRunning ?? false
+        webServer.isRunning
     }
     
     func convertToMP4IfNeeded(url: URL, completion: @escaping (URL?) -> Void) {
@@ -351,6 +376,8 @@ class LocalHTTPServer {
             return
         }
 
+        isConvertingFile?.wrappedValue = true
+        
         // Define a temporary output path for the converted file
         let tempURL = URL(fileURLWithPath: NSTemporaryDirectory())
             .appendingPathComponent(UUID().uuidString)
@@ -360,6 +387,7 @@ class LocalHTTPServer {
         let ffmpegCommand = """
         -i "\(url.path)" -c:v h264_videotoolbox -crf 30 -preset ultrafast -c:a aac -strict experimental "\(tempURL.path)"
         """
+        
         // Execute FFmpegKit command
         FFmpegKit.executeAsync(ffmpegCommand) { session in
             let returnCode = session?.getReturnCode()
@@ -376,6 +404,7 @@ class LocalHTTPServer {
                 }
             }
         }
+        isConvertingFile?.wrappedValue = false
     }
 }
 
