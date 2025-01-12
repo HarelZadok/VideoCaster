@@ -10,6 +10,7 @@ target 'VideoCaster' do
   pod 'SwiftProtobuf', '~> 1.0'
   pod "GCDWebServer", "~> 3.0"
   pod 'ffmpeg-kit-ios-min-gpl'
+  pod 'AwesomeEnum'
 
   target 'VideoCasterTests' do
     inherit! :search_paths

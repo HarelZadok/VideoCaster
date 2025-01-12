@@ -1,4 +1,5 @@
 ${PODS_ROOT}/Target Support Files/Pods-VideoCaster-VideoCasterUITests/Pods-VideoCaster-VideoCasterUITests-frameworks.sh
+${BUILT_PRODUCTS_DIR}/AwesomeEnum/AwesomeEnum.framework
 ${BUILT_PRODUCTS_DIR}/GCDWebServer/GCDWebServer.framework
 ${BUILT_PRODUCTS_DIR}/Protobuf/Protobuf.framework
 ${BUILT_PRODUCTS_DIR}/SwiftProtobuf/SwiftProtobuf.framework

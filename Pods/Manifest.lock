@@ -1,4 +1,5 @@
 PODS:
+  - AwesomeEnum (2.2.1)
   - ffmpeg-kit-ios-min-gpl (6.0)
   - GCDWebServer (3.5.4):
     - GCDWebServer/Core (= 3.5.4)
@@ -9,6 +10,7 @@ PODS:
   - SwiftProtobuf (1.28.2)
 
 DEPENDENCIES:
+  - AwesomeEnum
   - ffmpeg-kit-ios-min-gpl
   - GCDWebServer (~> 3.0)
   - google-cast-sdk (~> 4.8.3)
@@ -16,6 +18,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - AwesomeEnum
     - ffmpeg-kit-ios-min-gpl
     - GCDWebServer
     - google-cast-sdk
@@ -23,12 +26,13 @@ SPEC REPOS:
     - SwiftProtobuf
 
 SPEC CHECKSUMS:
+  AwesomeEnum: 9283d55c3d43eeb694168665609613df108662f8
   ffmpeg-kit-ios-min-gpl: 5b5c007503509e3e4c0ab68852468ccd3c768230
   GCDWebServer: 2c156a56c8226e2d5c0c3f208a3621ccffbe3ce4
   google-cast-sdk: 1fb6724e94cc5ff23b359176e0cf6360586bb97a
   Protobuf: 5a8a7781d8e1004302f108977ac2d5b99323146f
   SwiftProtobuf: 4dbaffec76a39a8dc5da23b40af1a5dc01a4c02d
 
-PODFILE CHECKSUM: 9e24d2f1b4f4e4427e22a4f105e20f374964205f
+PODFILE CHECKSUM: d07e84fe07767b41dd39e13537a1d754088d0833
 
 COCOAPODS: 1.16.2
