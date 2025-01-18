@@ -10,6 +10,8 @@ import GoogleCast
 
 @main
 struct VideoCasterApp: App {
+    var telegramManager = TelegramManager()
+    
     init () {
         setupGoogleCast()
     }
@@ -17,6 +19,7 @@ struct VideoCasterApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(telegramManager)
         }
     }
     

@@ -6,13 +6,22 @@
 //
 
 import SwiftUI
+import TDLibKit
 
 struct TelegramScreen: View {
+    @EnvironmentObject var telegramManager: TelegramManager
+    
     var body: some View {
-        NavigationView {
-            Text("Coming soon")
-                .navigationTitle("Telegram Videos")
-                .navigationBarItems(leading: ServerButtonView(), trailing: CastButtonView())
+        NavigationStack {
+            Group {
+                if telegramManager.isAuthorized {
+                    TelegramChatsScreen()
+                }
+                else {
+                    TelegramLoginScreen()
+                }
+            }
+            .navigationBarItems(trailing: CastButtonView())
         }
     }
 }

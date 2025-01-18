@@ -34,6 +34,11 @@ struct ContentView: View {
     }
 }
 
-#Preview {
-    ContentView()
+struct AppPreview: PreviewProvider {
+    static var previews: some View {
+        ContentView().environmentObject({ () -> TelegramManager in
+            let envObj = TelegramManager()
+            return envObj
+        }() )
+    }
 }

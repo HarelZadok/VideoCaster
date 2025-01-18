@@ -48,7 +48,7 @@ class LocalHTTPServer {
                     return GCDWebServerErrorResponse(statusCode: 404)
                 }
                 
-                let response = GCDWebServerFileResponse(file: mp4URL.path, isAttachment: false)
+                let response = GCDWebServerFileResponse(file: mp4URL.path, byteRange: request.byteRange, isAttachment: false)
                 response?.setValue("bytes", forAdditionalHeader: "Accept-Ranges")
                 
                 // Add logging for range requests

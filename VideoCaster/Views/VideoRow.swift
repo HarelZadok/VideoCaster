@@ -39,11 +39,10 @@ struct VideoRow: View {
                 VStack(alignment: .center, spacing: 5) {
                     Text(video.url.lastPathComponent)
                         .font(.headline)
-                    if let date = video.creationDate {
-                        Text("\(date, formatter: dateFormatter)")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-                    }
+                    let date = video.creationDate
+                    Text("\(date, formatter: dateFormatter)")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
                 .alert(isPresented: $showError) {
@@ -94,7 +93,7 @@ struct VideoRow: View {
                     
                     // Use GCKMediaInformationBuilder
                     let mediaInfoBuilder = GCKMediaInformationBuilder(contentURL: localURL)
-                    mediaInfoBuilder.streamType = GCKMediaStreamType.none
+                    mediaInfoBuilder.streamType = GCKMediaStreamType.buffered
                     mediaInfoBuilder.contentType = "video/mp4"
                     mediaInfoBuilder.metadata = metadata
                     mediaInfoBuilder.streamDuration = duration.seconds

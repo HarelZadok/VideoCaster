@@ -14,10 +14,14 @@ struct VideoListScreen: View {
     @State private var videos: [Video] = []
     @State private var showingPermissionDeniedAlert = false
     @State private var searchText: String = ""
+    @State private var sortBy: String = "creationDate"
 
     var body: some View {
-        let videoList: [Video] = searchText.isEmpty ? videos : videos.filter { $0.url.absoluteString.localizedCaseInsensitiveContains(searchText) }
-        NavigationView {
+        let videoList: [Video] = (searchText.isEmpty ? videos : videos.filter { $0.url.absoluteString.localizedCaseInsensitiveContains(searchText) }).sorted {
+            sortBy == "creationDate" ? $0.creationDate.timeIntervalSince1970 > $1.creationDate.timeIntervalSince1970 : $0.duration > $1.duration
+        }
+        
+        NavigationStack {
             ScrollView {
                 LazyVStack {
                     ForEach(videoList) { video in
@@ -46,7 +50,7 @@ struct VideoListScreen: View {
             }
             .toolbarBackground(.background, for: .navigationBar)
         }
-        .searchable(text: $searchText, placement: .toolbar)
+        .searchable(text: $searchText, placement: .toolbar, prompt: "Search")
         .background(Color(.systemBackground))
     }
 
@@ -85,7 +89,7 @@ struct VideoListScreen: View {
         
         let fetchOptions = PHFetchOptions()
         fetchOptions.predicate = NSPredicate(format: "mediaType == %d", PHAssetMediaType.video.rawValue)
-        fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        fetchOptions.sortDescriptors = [NSSortDescriptor(key: sortBy, ascending: false)]
 
         let assets = PHAsset.fetchAssets(with: .video, options: fetchOptions)
         
@@ -99,7 +103,7 @@ struct VideoListScreen: View {
             PHImageManager.default().requestAVAsset(forVideo: asset, options: options) { avAsset, _, _ in
                 index += 1
                 if let urlAsset = avAsset as? AVURLAsset {
-                    var video = Video(id: asset.localIdentifier, url: urlAsset.url, creationDate: asset.creationDate)
+                    var video = Video(id: asset.localIdentifier, url: urlAsset.url, creationDate: asset.creationDate!, duration: asset.duration)
                     
                     var processedIDs = Set<String>() // Track processed videos to prevent duplicates
 
