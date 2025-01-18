@@ -16,7 +16,6 @@ struct TelegramChatSession: View {
     @State private var messages: [Message] = []
     @State private var isFetchingMessages = false
     @State private var currentMessageId: Int64?
-    @ObservedObject private var keyboard = KeyboardResponder()
     
     @EnvironmentObject var telegramManager: TelegramManager
     
@@ -40,7 +39,7 @@ struct TelegramChatSession: View {
                         currentMessageId = messages.last?.id
                     }
                 }
-                .scrollDismissesKeyboard(.interactively)
+                .scrollDismissesKeyboard(.immediately)
                 .frame(maxWidth: .infinity)
                 ChatTextArea()
             }
@@ -48,9 +47,6 @@ struct TelegramChatSession: View {
             .navigationBarTitleDisplayMode(.inline)
             .navigationTitle(truncatedTitle)
             .toolbarBackground(.background, for: .navigationBar)
-            .padding(.bottom, keyboard.currentHeight)
-            .animation(.easeOut(duration: 0.25), value: keyboard.currentHeight)
-            .ignoresSafeArea(.keyboard, edges: .bottom)
         }
         .background(Color(.systemBackground))
         .refreshable {
