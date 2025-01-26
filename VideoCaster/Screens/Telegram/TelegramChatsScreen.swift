@@ -34,20 +34,21 @@ struct TelegramChatsScreen: View {
                     .padding()
             } else {
                 ScrollView {
-                    LazyVStack {
+                    LazyVStack(spacing: 0) {
                         ForEach(chats) { chat in
                             if chat.id != chats.first?.id && !chat.title.isEmpty {
                                 Divider()
+                                    .padding(5)
                             }
                             ChatRow(chat: chat)
+                                .contentShape(Rectangle())
                         }
                     }
-                    .padding()
+                    .padding(.vertical)
                     .background(Color(.secondarySystemBackground))
-                    .cornerRadius(12)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                     .padding()
                 }
-                .toolbarBackground(.background, for: .navigationBar)
                 .background(Color(.systemBackground))
             }
         }
@@ -57,6 +58,7 @@ struct TelegramChatsScreen: View {
                 chats = telegramManager.chats
             }
         }
+        .toolbarBackground(.background, for: .navigationBar)
         .searchable(text: $searchText, placement: .toolbar, prompt: "Search")
         .navigationTitle("Telegram Chats")
         .toolbar {
@@ -100,5 +102,5 @@ struct TelegramChatsScreen: View {
 }
 
 #Preview {
-    TelegramChatsScreen(previewChats: [.init(id: 1, title: "1", lastMessage: "Hey", lastMessageSender: "Sason")])
+    TelegramChatsScreen(previewChats: [.init(id: 1, title: "1", lastMessage: "Hey", lastMessageSender: "Sason", isOutgoing: false)])
 }

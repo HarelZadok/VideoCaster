@@ -33,22 +33,29 @@ struct ChatRow: View {
                             .frame(maxWidth: .infinity)
                         if let lastSender = chat.lastMessageSender, let lastMessage = chat.lastMessage {
                             HStack(spacing: 0) {
-                                Text(lastSender)
-                                    .foregroundStyle(telegramColor)
-                                    .padding(.bottom, 4)
-                                    .lineLimit(1)
-                                    .padding(.horizontal, 0)
-                                Text(": ")
-                                    .foregroundStyle(telegramColor)
-                                    .padding(.bottom, 4)
-                                    .lineLimit(1)
-                                    .padding(.horizontal, 0)
-                                Text(lastMessage)
-                                    .foregroundStyle(.secondary)
-                                    .padding(.bottom, 4)
-                                    .lineLimit(1)
-                                    .padding(.horizontal, 0)
+                                Group {
+                                    Text(chat.isOutgoing ? "You" : lastSender)
+                                        .foregroundStyle(telegramColor)
+                                        .lineLimit(1)
+                                        .truncationMode(.tail)
+                                        .bold()
+                                        .frame(maxWidth: 100, alignment: .leading)
+                                        .fixedSize()
+                                    Text(":")
+                                        .foregroundStyle(telegramColor)
+                                        .lineLimit(1)
+                                        .truncationMode(.tail)
+                                        .bold()
+                                        .padding(.leading, 0)
+                                        .padding(.trailing, 6)
+                                    Text(lastMessage)
+                                        .foregroundStyle(Color(.secondaryLabel))
+                                        .lineLimit(1)
+                                        .truncationMode(.tail)
+                                }
+                                .padding(.horizontal, 0)
                             }
+                            .padding(EdgeInsets(top: 0, leading: 8, bottom: 0, trailing: 8))
                         } else {
                             Text("")
                                 .foregroundStyle(.secondary)
@@ -73,6 +80,6 @@ struct ChatRow: View {
 
 #Preview {
     ChatRow(
-        chat: TelegramChat(id: 12631, title: "Chat title.", lastMessage: "Hello, World!", lastMessageSender: "Sason")
+        chat: TelegramChat(id: 12631, title: "Chat title.", lastMessage: "Hello, World!", lastMessageSender: "Sason", isOutgoing: false)
     )
 }

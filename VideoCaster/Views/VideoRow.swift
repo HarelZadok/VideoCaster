@@ -66,44 +66,42 @@ struct VideoRow: View {
             return
         }
 
-        // Convert video if necessary
-        LocalHTTPServer.shared.convertToMP4IfNeeded(url: video.url) { mp4URL in
-            guard let mp4URL = mp4URL else {
-                print("Failed to convert video to MP4")
+        // Start the local server
+        LocalHTTPServer.shared.startServer(withFileAt: video.url, thumbnail: video.thumbnail) { localURL in
+            guard let localURL = localURL else {
+                print("Failed to create local URL")
                 showError = true
                 return
             }
 
-            // Start the local server
-            LocalHTTPServer.shared.startServer(withFileAt: mp4URL) { localURL in
-                guard let localURL = localURL else {
-                    print("Failed to create local URL")
-                    showError = true
-                    return
-                }
+            Task {
+                // Fetch video duration
+                let asset = AVAsset(url: video.url)
+                let duration = try await asset.load(.duration)
 
-                Task {
-                    // Fetch video duration
-                    let asset = AVAsset(url: video.url)
-                    let duration = try await asset.load(.duration)
-
-                    // Create Media Metadata
-                    let metadata = GCKMediaMetadata()
-                    metadata.setString(video.url.lastPathComponent, forKey: kGCKMetadataKeyTitle)
-                    
-                    // Use GCKMediaInformationBuilder
-                    let mediaInfoBuilder = GCKMediaInformationBuilder(contentURL: localURL)
-                    mediaInfoBuilder.streamType = GCKMediaStreamType.buffered
-                    mediaInfoBuilder.contentType = "video/mp4"
-                    mediaInfoBuilder.metadata = metadata
-                    mediaInfoBuilder.streamDuration = duration.seconds
-                    let mediaInfo = mediaInfoBuilder.build()
-                    
-                    // Cast the video to Chromecast
-                    currentCastSession.remoteMediaClient?.loadMedia(mediaInfo)
-                    GCKCastContext.sharedInstance().presentDefaultExpandedMediaControls()
-                    GCKCastContext.sharedInstance().useDefaultExpandedMediaControls = true
-                }
+                // Create Media Metadata
+                let metadata = GCKMediaMetadata()
+                metadata.setString(video.url.lastPathComponent, forKey: kGCKMetadataKeyTitle)
+                metadata.addImage(GCKImage(url: localURL.appendingPathComponent("thumbnail.jpg"), width: 480, height: 360))
+                
+                // Use GCKMediaInformationBuilder
+                let mediaInfoBuilder = GCKMediaInformationBuilder(contentURL: localURL.appendingPathComponent("video.mp4"))
+                mediaInfoBuilder.streamType = GCKMediaStreamType.buffered
+                mediaInfoBuilder.contentType = "video/mp4"
+                mediaInfoBuilder.metadata = metadata
+                mediaInfoBuilder.streamDuration = duration.seconds
+                let mediaInfo = mediaInfoBuilder.build()
+                
+                let castStyle = GCKUIStyle.sharedInstance()
+                castStyle.castViews.mediaControl.expandedController.backgroundColor = .systemBackground
+                castStyle.castViews.mediaControl.sliderSecondaryProgressColor = .secondarySystemBackground
+                castStyle.castViews.mediaControl.sliderProgressColor = UIColor(telegramColor)
+                castStyle.apply()
+                
+                // Cast the video to Chromecast
+                currentCastSession.remoteMediaClient?.loadMedia(mediaInfo)
+                GCKCastContext.sharedInstance().presentDefaultExpandedMediaControls()
+                GCKCastContext.sharedInstance().useDefaultExpandedMediaControls = true
             }
         }
     }

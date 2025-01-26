@@ -10,6 +10,8 @@
 		0A9C7BEDF96303A6E923C30A /* Pods_VideoCasterTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 571DB0A81EAAC3E68EF63B23 /* Pods_VideoCasterTests.framework */; };
 		0C93508FC895C4F78C9034AC /* Pods_VideoCaster.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3764530DAF1F2241D69A4EBB /* Pods_VideoCaster.framework */; };
 		3A476015E51F8919E0EDC61B /* Pods_VideoCaster_VideoCasterUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7D989F0DD99756ECA5193992 /* Pods_VideoCaster_VideoCasterUITests.framework */; };
+		F16E48072D3BD00700C89915 /* TDLibKit in Frameworks */ = {isa = PBXBuildFile; productRef = F16E48062D3BD00700C89915 /* TDLibKit */; };
+		F16ED01F2D454FC000C14920 /* TDLibKit in Frameworks */ = {isa = PBXBuildFile; productRef = F16ED01E2D454FC000C14920 /* TDLibKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -94,6 +96,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				0C93508FC895C4F78C9034AC /* Pods_VideoCaster.framework in Frameworks */,
+				F16E48072D3BD00700C89915 /* TDLibKit in Frameworks */,
+				F16ED01F2D454FC000C14920 /* TDLibKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -267,6 +271,7 @@
 			mainGroup = F1F67CC62CED7FA1002042C5;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				F16E48052D3BD00700C89915 /* XCRemoteSwiftPackageReference "TDLibKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F1F67CD02CED7FA1002042C5 /* Products */;
@@ -516,7 +521,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -580,7 +585,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -794,6 +799,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		F16E48052D3BD00700C89915 /* XCRemoteSwiftPackageReference "TDLibKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Swiftgram/TDLibKit";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		F16E48062D3BD00700C89915 /* TDLibKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F16E48052D3BD00700C89915 /* XCRemoteSwiftPackageReference "TDLibKit" */;
+			productName = TDLibKit;
+		};
+		F16ED01E2D454FC000C14920 /* TDLibKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F16E48052D3BD00700C89915 /* XCRemoteSwiftPackageReference "TDLibKit" */;
+			productName = TDLibKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = F1F67CC72CED7FA1002042C5 /* Project object */;
 }

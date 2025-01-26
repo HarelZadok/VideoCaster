@@ -13,8 +13,11 @@ class LocalHTTPServer {
     static let shared = LocalHTTPServer()
     private var webServer: GCDWebServer = GCDWebServer()
     private var _url: URL?
+    private var _thumbnail: UIImage?
     var convertingFile = false
     private var onServerStateChangeHandlers: [(Bool) -> Void] = []
+    
+    private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
     
     public func onServerStateChange(_ handler: @escaping (Bool) -> Void) {
         onServerStateChangeHandlers.append(handler)
@@ -26,57 +29,54 @@ class LocalHTTPServer {
         }
     }
     
-    func startServer(withFileAt url: URL, completion: @escaping (URL?) -> Void) {
-        // Convert to MP4 if necessary
-        convertToMP4IfNeeded(url: url) { mp4URL in
-            guard let mp4URL = mp4URL else {
-                print("Failed to convert video to MP4")
-                completion(nil)
-                return
-            }
-
-            // Stop any existing server
-            if self.isServerRunning() {
-                self.stopServer()
+    func startServer(withFileAt url: URL, thumbnail: UIImage? = nil, completion: @escaping (URL?) -> Void) {
+        // Stop any existing server
+        if self.isServerRunning() {
+            self.stopServer()
+        }
+        
+        self._url = url
+        self._thumbnail = thumbnail
+        
+        // Add a handler for the MP4 file
+        self.webServer.addHandler(forMethod: "GET", path: "/video.mp4", request: GCDWebServerRequest.self) { request in
+            guard let url = self._url else {
+                return GCDWebServerErrorResponse(statusCode: 404)
             }
             
-            self._url = mp4URL
-            
-            // Add a handler for the MP4 file
-            self.webServer.addHandler(forMethod: "GET", path: "/video.mp4", request: GCDWebServerRequest.self) { request in
-                guard let mp4URL = self._url else {
-                    return GCDWebServerErrorResponse(statusCode: 404)
-                }
-                
-                let response = GCDWebServerFileResponse(file: mp4URL.path, byteRange: request.byteRange, isAttachment: false)
-                response?.setValue("bytes", forAdditionalHeader: "Accept-Ranges")
-                
-                // Add logging for range requests
-                if let rangeHeader = request.headers["Range"] {
-                    print("Range request: \(rangeHeader)")
-                }
-                
-                return response
+            let response = GCDWebServerFileResponse(file: url.path, byteRange: request.byteRange, isAttachment: false)
+            response?.setValue("bytes", forAdditionalHeader: "Accept-Ranges")
+            response?.contentType = "video/mp4"
+            response?.setValue("inline; filename=\"video.mp4\"", forAdditionalHeader: "Content-Disposition")
+            return response
+        }
+        
+        self.webServer.addHandler(forMethod: "GET", path: "/thumbnail.jpg", request: GCDWebServerRequest.self) { request  in
+            guard let jpg = self._thumbnail else {
+                return GCDWebServerErrorResponse(statusCode: 404)
             }
 
-            // Start the server
-            do {
-                try self.webServer.start(options: [
-                    GCDWebServerOption_Port: 0,
-                    GCDWebServerOption_BindToLocalhost: false,
-                    GCDWebServerOption_AutomaticallySuspendInBackground: false,
-                ])
-                if let serverURL = self.webServer.serverURL {
-                    self.notifyServerStateChange(true)
-                    completion(serverURL.appendingPathComponent("video.mp4"))
-                } else {
-                    completion(nil)
-                }
-            } catch {
-                print("Failed to start server: \(error.localizedDescription)")
-                self.notifyServerStateChange(false)
+            return GCDWebServerDataResponse(data: jpg.jpegData(compressionQuality: 1)!, contentType: "image/jpeg")
+        }
+
+        // Start the server
+        do {
+            try self.webServer.start(options: [
+                GCDWebServerOption_Port: 0,
+                GCDWebServerOption_BindToLocalhost: false,
+                GCDWebServerOption_AutomaticallySuspendInBackground: false,
+            ])
+            if let serverURL = self.webServer.serverURL {
+                self.notifyServerStateChange(true)
+                self.beginBackgroundTask()
+                completion(serverURL)
+            } else {
                 completion(nil)
             }
+        } catch {
+            print("Failed to start server: \(error.localizedDescription)")
+            self.notifyServerStateChange(false)
+            completion(nil)
         }
     }
     
@@ -87,6 +87,7 @@ class LocalHTTPServer {
     func stopServer() {
         webServer.stop()
         self.notifyServerStateChange(false)
+        self.endBackgroundTask()
     }
     
     func isServerRunning() -> Bool {
@@ -122,16 +123,31 @@ class LocalHTTPServer {
 
             if ReturnCode.isSuccess(returnCode) {
                 DispatchQueue.main.async {
-                    print("Conversion to MP4 with H.264 completed: \(tempURL)")
                     completion(tempURL) // Return the converted file
                 }
             } else {
                 DispatchQueue.main.async {
-                    print("Failed to convert video with FFmpeg: \(returnCode?.getValue() ?? -1)")
                     completion(nil) // Notify failure
                 }
             }
         }
         convertingFile = false
+    }
+    
+    func beginBackgroundTask() {
+        guard backgroundTask == .invalid else {
+            return
+        }
+        
+        backgroundTask = UIApplication.shared.beginBackgroundTask(withName: "LocalHTTPServerBackgroundTask") {
+            self.endBackgroundTask()
+        }
+    }
+
+    func endBackgroundTask() {
+        if backgroundTask != .invalid {
+            UIApplication.shared.endBackgroundTask(backgroundTask)
+            backgroundTask = .invalid
+        }
     }
 }

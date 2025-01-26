@@ -116,8 +116,15 @@ struct VideoListScreen: View {
                             self.videos.append(video)
                         }
                     } else {
-                        let thumbnailSize = CGSize(width: 100, height: 100)
-                        PHImageManager.default().requestImage(for: asset, targetSize: thumbnailSize, contentMode: .aspectFill, options: nil) { image, info in
+                        let thumbnailSize = CGSize(width: 1000, height: 1000)
+                        
+                        let imageRequestOptions = PHImageRequestOptions()
+                        imageRequestOptions.deliveryMode = .highQualityFormat
+                        imageRequestOptions.resizeMode = .exact
+                        imageRequestOptions.isSynchronous = false
+                        imageRequestOptions.isNetworkAccessAllowed = true
+                        
+                        PHImageManager.default().requestImage(for: asset, targetSize: thumbnailSize, contentMode: .aspectFit, options: imageRequestOptions) { image, info in
                             if !processedIDs.contains(video.id) {
                                 processedIDs.insert(video.id)
                                 if let image = image {

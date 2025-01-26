@@ -10,6 +10,8 @@ import GoogleCast
 
 @main
 struct VideoCasterApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    
     var telegramManager = TelegramManager()
     
     init () {

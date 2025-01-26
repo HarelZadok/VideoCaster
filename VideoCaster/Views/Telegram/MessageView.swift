@@ -8,64 +8,83 @@
 import SwiftUI
 import TDLibKit
 
-struct MessageView: View {
-    let text: String
-    let senderId: MessageSender?
+struct MessageView<Content: View>: View {
+    let messageSenderId: MessageSender?
     let chatId: Int64
     let alignment: Alignment
     let backgroundColor: Color?
     let foregorundColor: Color?
+    let prevMessageSenderId: MessageSender?
+    let nextMessageSenderId: MessageSender?
+    let padding: CGFloat
+    let insetContent: Bool
     @State var senderName: String?
+    @State var prevSenderId: Int64?
+    @State var senderId: Int64?
+    @State var nextSenderId: Int64?
     @EnvironmentObject var telegramManager: TelegramManager
+    let content: () -> Content
     
-    init(text: String, isSent: Bool, senderId: MessageSender? = nil, chatId: Int64 = 0) {
-        self.text = text
+    init(
+        isSent: Bool,
+        senderId: MessageSender? = nil,
+        prevMessageSenderId: MessageSender? = nil,
+        nextMessageSenderId: MessageSender? = nil,
+        chatId: Int64 = 0,
+        padding: CGFloat = 12,
+        insetContent: Bool = false,
+        @ViewBuilder content: @escaping () -> Content
+    ) {
         if isSent {
             alignment = .trailing
             backgroundColor = Color(.secondarySystemBackground)
             foregorundColor = nil
-            self.senderId = senderId
-            self.chatId = chatId
         }
         else {
             alignment = .leading
             backgroundColor = telegramColor
             foregorundColor = .white
-            self.senderId = senderId
-            self.chatId = chatId
         }
-    }
-    
-    init(message: Message) {
-        switch message.content {
-        case .messageText(let text):
-            self.init(text: text.text.text, isSent: message.isOutgoing, senderId: message.senderId, chatId: message.chatId)
-        default:
-            self.init(text: "", isSent: message.isOutgoing, senderId: message.senderId, chatId: message.chatId)
-        }
+        self.messageSenderId = senderId
+        self.chatId = chatId
+        self.content = content
+        self.prevMessageSenderId = prevMessageSenderId
+        self.nextMessageSenderId = nextMessageSenderId
+        self.padding = padding
+        self.insetContent = insetContent
     }
     
     @State private var width = 0.0
     
     var body: some View {
         VStack {
-            VStack(alignment: alignment.horizontal) {
-                if alignment == .leading, let senderName = senderName {
-                    Text(senderName)
-                        .font(.caption)
-                        .foregroundStyle(Color(.systemBackground))
-                        .bold()
-                        .frame(height: 8, alignment: .leading)
+            VStack {
+                VStack(alignment: alignment.horizontal) {
+                    if alignment == .leading, prevSenderId != senderId, let senderName = senderName {
+                        Text(senderName)
+                            .font(.caption)
+                            .foregroundStyle(Color(.systemBackground))
+                            .bold()
+                            .frame(height: 8, alignment: .leading)
+                    }
+                    content()
                 }
-                Text(text)
+                .foregroundColor(foregorundColor)
+                .clipShape(
+                    insetContent ? .rect(
+                        topLeadingRadius: alignment == .leading ? 2 : 10,
+                        bottomLeadingRadius: (alignment == .leading && (senderId ?? 0) == nextSenderId) ? 2 : 10,
+                        bottomTrailingRadius: (alignment == .trailing && (senderId ?? 0) == nextSenderId) ? 2 : 10,
+                        topTrailingRadius: alignment == .trailing ? 2 : 10
+                    ) : .rect()
+                )
+                .padding(padding)
             }
-            .padding(12)
             .background(backgroundColor)
-            .foregroundColor(foregorundColor)
             .clipShape(.rect(
                 topLeadingRadius: alignment == .leading ? 3 : 12,
-                bottomLeadingRadius: 12,
-                bottomTrailingRadius: 12,
+                bottomLeadingRadius: (alignment == .leading && (senderId ?? 0) == nextSenderId) ? 3 : 12,
+                bottomTrailingRadius: (alignment == .trailing && (senderId ?? 0) == nextSenderId) ? 3 : 12,
                 topTrailingRadius: alignment == .trailing ? 3 : 12
             ))
             .frame(maxWidth: width * 0.85, alignment: alignment)
@@ -81,41 +100,40 @@ struct MessageView: View {
             }
         )
         .onAppear {
-            if chatId < 0, let senderId = senderId {
+            if chatId < 0, let messageSenderId = messageSenderId {
                 Task {
-                    switch senderId {
+                    switch messageSenderId {
                     case .messageSenderUser(let messageSenderUser):
-                        senderName = await telegramManager.getUser(id: messageSenderUser.userId)?.firstName
+                        senderName = await telegramManager.getMessageSenderName(id: messageSenderUser)
                     case .messageSenderChat(_):
                         break
                     }
                 }
             }
+            Task {
+                senderId = await telegramManager.getUserId(messageSenderId)
+                prevSenderId = await telegramManager.getUserId(prevMessageSenderId)
+                nextSenderId = await telegramManager.getUserId(nextMessageSenderId)
+            }
         }
+        .padding(.bottom, senderId == nextSenderId ? 0 : 8)
     }
 }
 
 #Preview {
-    VStack {
-        ScrollView {
-            LazyVStack(alignment: .leading) {
-                MessageView(text: "Hello, how are you?", isSent: false)
-                MessageView(text: "I'm good! Thanks for asking.", isSent: true)
-                MessageView(
-                    text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-                    isSent: false
-                )
-                MessageView(
-                    text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-                    isSent: true
-                )
-                MessageView(text: "Cheers!", isSent: true)
+    ScrollView {
+        LazyVStack(alignment: .leading, spacing: 2) {
+            Group {
+                TextMessageView(text: "Hello Darkness my old friend", isSent: true, senderId: nil, chatId: 0)
+                TextMessageView(text: "Hello Ive come to talk to you again", isSent: false, senderId: nil, chatId: 0)
+                TextMessageView(text: "Hello youre creeping me out", isSent: true, senderId: nil, chatId: 0)
+                TextMessageView(text: "Hello dude chill the fuck off", isSent: false, senderId: nil, chatId: 0)
+                TextMessageView(text: "Hello hahahah delicious whoo hoo", isSent: false, senderId: nil, chatId: 0)
             }
-            .padding()
+            .flippedUpsideDown()
         }
-        .scrollDismissesKeyboard(.automatic)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        ChatTextArea()
-            .padding()
     }
+    .flippedUpsideDown()
+    .padding()
+    .environmentObject(TelegramManager(phoneNumber: "+972587305151"))
 }
