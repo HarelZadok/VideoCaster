@@ -13,6 +13,7 @@ struct TelegramChatsScreen: View {
     @State private var isPreview: Bool
     @State private var chats: [TelegramChat]
     @State private var showLogoutAlert = false
+    @State private var showCacheResetAlert: Bool = false
     
     @EnvironmentObject var telegramManager: TelegramManager
     
@@ -63,11 +64,13 @@ struct TelegramChatsScreen: View {
         .navigationTitle("Telegram Chats")
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
-                Button(action: {
-                    showLogoutAlert = true
-                }) {
-                    Image(systemName: "escape").foregroundStyle(.red)
-                }
+                Image(systemName: "escape").foregroundStyle(.red)
+                    .onTapGesture {
+                        showLogoutAlert = true
+                    }
+                    .onLongPressGesture {
+                        showCacheResetAlert = true
+                    }
             }
         }
         .onAppear {
@@ -97,6 +100,16 @@ struct TelegramChatsScreen: View {
             }
         } message: {
             Text("Are you sure you want to log out?")
+        }
+        .alert("Clear Cache", isPresented: $showCacheResetAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Confirm", role: .destructive) {
+                Task {
+                    await telegramManager.removeCacheFiles()
+                }
+            }
+        } message: {
+            Text("Are you sure you want to clear cache?")
         }
     }
 }

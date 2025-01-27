@@ -14,7 +14,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     func applicationDidEnterBackground(_ application: UIApplication) {
         // Optionally, ensure the server continues running
         if LocalHTTPServer.shared.isServerRunning() {
-            LocalHTTPServer.shared.beginBackgroundTask()
+            LocalHTTPServer.shared.beginBackgroundTask(application)
         }
     }
 
@@ -24,6 +24,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
     func applicationWillTerminate(_ application: UIApplication) {
         // Ensure the background task is ended
-        LocalHTTPServer.shared.endBackgroundTask()
+        LocalHTTPServer.shared.endBackgroundTask(application)
     }
 }

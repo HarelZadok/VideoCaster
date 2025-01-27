@@ -34,6 +34,7 @@ class TelegramManager: ObservableObject {
     private let databasePath: URL
     
     private var fileUpdateFunctions: [Int : (File) -> Void] = [:]
+    private var downloadedFileIds: Set<Int> = []
 
     init() {
         self.databasePath = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)
@@ -70,6 +71,7 @@ class TelegramManager: ObservableObject {
                                 self?.onMessageUpdate?(message.message)
                             }
                         }
+                        
                     case .updateFile(let msg):
                         self?.fileUpdateFunctions[msg.file.id]?(msg.file)
                     default:
@@ -176,9 +178,18 @@ class TelegramManager: ObservableObject {
             try await client.logOut()
             self.chats = []
             self.isAuthorized = false
+            await removeCacheFiles()
             UserDefaults.standard.removeObject(forKey: "telegramPhoneNumber")
         } catch {
             print("Error logging out: \(error)")
+        }
+    }
+    
+    func removeCacheFiles() async {
+        try! await client?.removeAllFilesFromDownloads(deleteFromCache: true, onlyActive: false, onlyCompleted: false)
+        for id in downloadedFileIds {
+            try! await client?.deleteFile(fileId: id)
+            downloadedFileIds.remove(id)
         }
     }
     
@@ -254,6 +265,7 @@ class TelegramManager: ObservableObject {
                 synchronous: !async
             )
             
+            downloadedFileIds.insert(fileId)
             return file
         } catch {
             print("Failed to download image.")

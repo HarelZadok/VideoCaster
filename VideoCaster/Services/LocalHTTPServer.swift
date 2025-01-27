@@ -38,6 +38,10 @@ class LocalHTTPServer {
         self._url = url
         self._thumbnail = thumbnail
         
+        self.webServer.addDefaultHandler(forMethod: "GET", request: GCDWebServerRequest.self) { request in
+            return GCDWebServerDataResponse(html: "<html><body><h1>Hello from GCDWebServer!</h1></body></html>")
+        }
+        
         // Add a handler for the MP4 file
         self.webServer.addHandler(forMethod: "GET", path: "/video.mp4", request: GCDWebServerRequest.self) { request in
             guard let url = self._url else {
@@ -68,7 +72,29 @@ class LocalHTTPServer {
             ])
             if let serverURL = self.webServer.serverURL {
                 self.notifyServerStateChange(true)
-                self.beginBackgroundTask()
+                self.beginBackgroundTask(UIApplication.shared)
+                
+                UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { success, error in
+                    if success {
+                        print("All set!")
+                    } else if let error {
+                        print(error.localizedDescription)
+                    }
+                }
+                
+                let content = UNMutableNotificationContent()
+                content.title = "ServerURL"
+                content.subtitle = serverURL.absoluteString
+                content.sound = UNNotificationSound.default
+
+                // show this notification five seconds from now
+                let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
+
+                // choose a random identifier
+                let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+
+                // add our notification request
+                UNUserNotificationCenter.current().add(request)
                 completion(serverURL)
             } else {
                 completion(nil)
@@ -87,7 +113,7 @@ class LocalHTTPServer {
     func stopServer() {
         webServer.stop()
         self.notifyServerStateChange(false)
-        self.endBackgroundTask()
+        self.endBackgroundTask(UIApplication.shared)
     }
     
     func isServerRunning() -> Bool {
@@ -134,19 +160,19 @@ class LocalHTTPServer {
         convertingFile = false
     }
     
-    func beginBackgroundTask() {
+    func beginBackgroundTask(_ application: UIApplication) {
         guard backgroundTask == .invalid else {
             return
         }
         
-        backgroundTask = UIApplication.shared.beginBackgroundTask(withName: "LocalHTTPServerBackgroundTask") {
-            self.endBackgroundTask()
+        backgroundTask = application.beginBackgroundTask(withName: "LocalHTTPServerBackgroundTask") {
+            self.endBackgroundTask(application)
         }
     }
 
-    func endBackgroundTask() {
+    func endBackgroundTask(_ application: UIApplication) {
         if backgroundTask != .invalid {
-            UIApplication.shared.endBackgroundTask(backgroundTask)
+            application.endBackgroundTask(backgroundTask)
             backgroundTask = .invalid
         }
     }

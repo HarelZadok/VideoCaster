@@ -181,9 +181,9 @@ struct TelegramChatSession: View {
     
     @ViewBuilder private func buildMessageView(_ message: Message, _ prevMessage: Message?, _ nextMessage: Message?) -> some View {
         switch message.content {
-        case .messageText(let text):
+        case .messageText(let msg):
             TextMessageView(
-                text: text.text.text,
+                text: msg.text.text,
                 isSent: message.isOutgoing,
                 senderId: message.senderId,
                 prevMessageSenderId: prevMessage?.senderId,
@@ -208,6 +208,18 @@ struct TelegramChatSession: View {
                 text: msg.caption.text,
                 video: msg.video,
                 thumbnail: msg.video.thumbnail,
+                isSent: message.isOutgoing,
+                senderId: message.senderId,
+                prevMessageSenderId: prevMessage?.senderId,
+                nextMessageSenderId: nextMessage?.senderId,
+                chatId: message.chatId,
+                messageId: message.id
+            )
+        case .messageDocument(let msg):
+            DocumentMessageView(
+                text: msg.caption.text,
+                document: msg.document,
+                thumbnail: msg.document.thumbnail,
                 isSent: message.isOutgoing,
                 senderId: message.senderId,
                 prevMessageSenderId: prevMessage?.senderId,

@@ -10,19 +10,18 @@ import TDLibKit
 import GoogleCast
 import Photos
 
-struct VideoMessageView: View {
+struct DocumentMessageView: View {
     let text: String
-    let video: TDLibKit.Video?
+    let document: Document?
     let miniThumbnail: Minithumbnail?
     let thumbnail: Thumbnail?
-    @State var videoFile: File?
+    @State var documentFile: File?
     @State var thumbnailFile: File?
     @State var thumbnailLoaded: Bool = false
-    @State var videoLoaded: Bool = false
+    @State var documentLoaded: Bool = false
     @State var downloadProgress: Double = 0
     @State var isDownloading: Bool = false
     @State var isDownloadPaused: Bool = false
-    @State var test: String? = nil
     let isSent: Bool
     let senderId: MessageSender?
     let prevMessageSenderId: MessageSender?
@@ -33,7 +32,7 @@ struct VideoMessageView: View {
     
     init(
         text: String,
-        video: TDLibKit.Video? = nil,
+        document: Document? = nil,
         miniThumbnail: Minithumbnail? = nil,
         thumbnail: Thumbnail? = nil,
         isSent: Bool,
@@ -44,7 +43,7 @@ struct VideoMessageView: View {
         messageId: Int64? = nil
     ) {
         self.text = text
-        self.video = video
+        self.document = document
         self.miniThumbnail = miniThumbnail
         self.thumbnail = thumbnail
         self.isSent = isSent
@@ -57,8 +56,8 @@ struct VideoMessageView: View {
     
     init(message: Message) {
         switch message.content {
-        case .messageVideo(let msg):
-            self.init(text: msg.caption.text, video: msg.video, thumbnail: msg.video.thumbnail, isSent: message.isOutgoing, senderId: message.senderId, chatId: message.chatId)
+        case .messageDocument(let msg):
+            self.init(text: msg.caption.text, document: msg.document, thumbnail: msg.document.thumbnail, isSent: message.isOutgoing, senderId: message.senderId, chatId: message.chatId)
         default:
             self.init(text: "NOT SUPPORTED YET!", isSent: message.isOutgoing, senderId: message.senderId, chatId: message.chatId)
         }
@@ -75,8 +74,8 @@ struct VideoMessageView: View {
             insetContent: true
         ) {
             VStack {
-                if thumbnailLoaded {
-                    ZStack(alignment: .center) {
+                ZStack(alignment: .center) {
+                    if thumbnailLoaded {
                         Image(uiImage: UIImage(contentsOfFile: thumbnailFile!.local.path)!)
                             .resizable()
                             .scaledToFit()
@@ -86,14 +85,41 @@ struct VideoMessageView: View {
                                 bottomTrailingRadius: !text.isEmpty ? 12 : 0,
                                 topTrailingRadius: 0
                             ))
-                        if !videoLoaded {
-                            Color.black.opacity(0.5)
-                                .clipShape(.rect(
-                                    topLeadingRadius: 0,
-                                    bottomLeadingRadius: !text.isEmpty ? 12 : 0,
-                                    bottomTrailingRadius: !text.isEmpty ? 12 : 0,
-                                    topTrailingRadius: 0
-                                ))
+                        Color.black.opacity(0.5)
+                            .clipShape(.rect(
+                                topLeadingRadius: 0,
+                                bottomLeadingRadius: !text.isEmpty ? 12 : 0,
+                                bottomTrailingRadius: !text.isEmpty ? 12 : 0,
+                                topTrailingRadius: 0
+                            ))
+                    }
+                    else {
+                        if let miniThumbnail = miniThumbnail {
+                            ZStack(alignment: .center) {
+                                Image(uiImage: UIImage(data: miniThumbnail.data)!)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .clipShape(.rect(
+                                        topLeadingRadius: 0,
+                                        bottomLeadingRadius: !text.isEmpty ? 12 : 0,
+                                        bottomTrailingRadius: !text.isEmpty ? 12 : 0,
+                                        topTrailingRadius: 0
+                                    ))
+                                Color.black.opacity(0.5)
+                                ProgressView()
+                                    .progressViewStyle(.circular)
+                            }
+                        }
+                    }
+                    HStack {
+                        if !thumbnailLoaded {
+                            Image(systemName: "document.fill")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 50, height: 50, alignment: .leading)
+                                .padding(.vertical, 8)
+                        }
+                        if !documentLoaded {
                             if isDownloading {
                                 VStack {
                                     ProgressView(value: downloadProgress){
@@ -104,7 +130,7 @@ struct VideoMessageView: View {
                                     HStack {
                                         if !isDownloadPaused {
                                             Button(action: {
-                                                telegramManager.pauseDownloadingFile(fileId: videoFile!.id)
+                                                telegramManager.pauseDownloadingFile(fileId: documentFile!.id)
                                             }) {
                                                 Image(systemName: "pause.circle")
                                                     .resizable()
@@ -113,7 +139,7 @@ struct VideoMessageView: View {
                                             }
                                         } else {
                                             Button(action: {
-                                                telegramManager.resumeDownloadingFile(fileId: videoFile!.id)
+                                                telegramManager.resumeDownloadingFile(fileId: documentFile!.id)
                                             }) {
                                                 Image(systemName: "play.circle")
                                                     .resizable()
@@ -122,64 +148,49 @@ struct VideoMessageView: View {
                                             }
                                         }
                                         Spacer()
-                                        Button(action: {telegramManager.cancelDownloadingFile(fileId: videoFile!.id)}) {
+                                        Button(action: {telegramManager.cancelDownloadingFile(fileId: documentFile!.id)}) {
                                             Image(systemName: "trash.circle")
                                                 .resizable()
                                                 .scaledToFit()
                                                 .frame(maxWidth: 35, maxHeight: 35)
                                         }
                                     }
+                                    .frame(maxWidth: .infinity)
                                 }
-                                .padding(.horizontal)
                             } else {
-                                Button(action: {
-                                    Task {
-                                        await downloadVideo()
+                                HStack {
+                                    Text(document!.fileName)
+                                    Spacer()
+                                    Button(action: {
+                                        Task {
+                                            await downloadDocument()
+                                        }
+                                    }) {
+                                        Image(systemName: "arrow.down.circle")
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(maxWidth: 50, maxHeight: 50)
                                     }
+                                }
+                                .frame(maxWidth: .infinity)
+                            }
+                        } else {
+                            HStack {
+                                Text(document!.fileName)
+                                Spacer()
+                                Button(action: {
+                                    castVideo()
                                 }) {
-                                    Image(systemName: "arrow.down.circle")
+                                    Image(systemName: "tv.badge.wifi")
                                         .resizable()
                                         .scaledToFit()
                                         .frame(maxWidth: 50, maxHeight: 50)
                                 }
                             }
-                        } else {
-                            Button(action: {
-                                castVideo()
-                            }) {
-                                Image(systemName: "tv.badge.wifi")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(maxWidth: 50, maxHeight: 50)
-                            }
-                        }
-                        Text(video?.mimeType.replacing("video/", with: "") ?? "")
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(.black)
-                            .foregroundStyle(.white)
-                            .clipShape(.capsule)
-                            .padding(4)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
-                    }
-                }
-                else {
-                    if let miniThumbnail = miniThumbnail {
-                        ZStack(alignment: .center) {
-                            Image(uiImage: UIImage(data: miniThumbnail.data)!)
-                                .resizable()
-                                .scaledToFit()
-                                .clipShape(.rect(
-                                    topLeadingRadius: 0,
-                                    bottomLeadingRadius: !text.isEmpty ? 12 : 0,
-                                    bottomTrailingRadius: !text.isEmpty ? 12 : 0,
-                                    topTrailingRadius: 0
-                                ))
-                            Color.black.opacity(0.5)
-                            ProgressView()
-                                .progressViewStyle(.circular)
+                            .frame(maxWidth: .infinity)
                         }
                     }
+                    .padding(.horizontal, 8)
                 }
                 if (!text.isEmpty) {
                     Text(text)
@@ -191,25 +202,25 @@ struct VideoMessageView: View {
         .onAppear {
             Task {
                 let tFile = await telegramManager.downloadFile(fileId: thumbnail?.file.id ?? 0)
-                videoFile = await telegramManager.getFile(fileId: video?.video.id ?? -1)
-                let temp = try await telegramManager.client?.getMessageLink(chatId: chatId, forAlbum: false, inMessageThread: false, mediaTimestamp: 0, messageId: messageId!)
+                documentFile = await telegramManager.getFile(fileId: document?.document.id ?? -1)
                 DispatchQueue.main.async {
-                    test = temp?.link
                     thumbnailFile = tFile
-                    thumbnailLoaded = thumbnailFile!.local.isDownloadingCompleted && !thumbnailFile!.local.path.isEmpty
-                    videoLoaded = videoFile?.local.isDownloadingCompleted ?? false
-                    isDownloading = videoFile?.local.isDownloadingActive ?? false || (videoFile?.local.downloadedSize ?? 0) > 0
-                    downloadProgress = Double(videoFile!.local.downloadedSize) / Double(videoFile!.expectedSize)
-                    isDownloadPaused = !videoFile!.local.isDownloadingActive && videoFile!.local.downloadedSize > 0
+                    if let thumbnailFile = thumbnailFile {
+                        thumbnailLoaded = thumbnailFile.local.isDownloadingCompleted && !thumbnailFile.local.path.isEmpty
+                    }
+                    documentLoaded = documentFile?.local.isDownloadingCompleted ?? false
+                    isDownloading = documentFile?.local.isDownloadingActive ?? false || (documentFile?.local.downloadedSize ?? 0) > 0
+                    downloadProgress = Double(documentFile!.local.downloadedSize) / Double(documentFile!.expectedSize)
+                    isDownloadPaused = !documentFile!.local.isDownloadingActive && documentFile!.local.downloadedSize > 0
                     
-                    videoLoaded = videoFile!.local.isDownloadingCompleted && !videoFile!.local.path.isEmpty
-                    if !videoLoaded {
-                        telegramManager.fileListener(fileId: videoFile!.id) { file in
+                    documentLoaded = documentFile!.local.isDownloadingCompleted && !documentFile!.local.path.isEmpty
+                    if !documentLoaded {
+                        telegramManager.fileListener(fileId: documentFile!.id) { file in
                             downloadProgress = Double(file.local.downloadedSize) / Double(file.expectedSize)
                             
                             if file.local.isDownloadingCompleted && !file.local.path.isEmpty {
-                                videoFile = file
-                                videoLoaded = true
+                                documentFile = file
+                                documentLoaded = true
                             }
                             
                             isDownloading = file.local.isDownloadingActive || file.local.downloadedSize > 0
@@ -221,19 +232,19 @@ struct VideoMessageView: View {
         }
     }
     
-    private func downloadVideo(streaming: Bool = false) async {
+    private func downloadDocument(streaming: Bool = false) async {
         let limit = Int64(2 * 1024 * 1024)
         if streaming {
-            while !(videoFile?.local.isDownloadingCompleted ?? true) {
-                videoFile = await telegramManager.downloadFile(
-                    fileId: video?.video.id ?? 0,
-                    offset: videoFile?.local.downloadOffset ?? 0,
+            while !(documentFile?.local.isDownloadingCompleted ?? true) {
+                documentFile = await telegramManager.downloadFile(
+                    fileId: document?.document.id ?? 0,
+                    offset: documentFile?.local.downloadOffset ?? 0,
                     limit: limit,
                     async: true
                 )
             }
         } else {
-            videoFile = await telegramManager.downloadFile(fileId: video?.video.id ?? 0, async: true)
+            documentFile = await telegramManager.downloadFile(fileId: document?.document.id ?? 0, async: true)
         }
     }
     
@@ -243,7 +254,7 @@ struct VideoMessageView: View {
             return
         }
         
-        let path = videoFile!.local.path
+        let path = documentFile!.local.path
         let url = URL(fileURLWithPath: path)
         let thumbnail = UIImage(contentsOfFile: thumbnailFile?.local.path ?? "")
 
@@ -283,15 +294,6 @@ struct VideoMessageView: View {
                 GCKCastContext.sharedInstance().presentDefaultExpandedMediaControls()
                 GCKCastContext.sharedInstance().useDefaultExpandedMediaControls = true
             }
-        }
-    }
-    
-    func saveVideoToPhotoLibrary() -> Void {
-        PHPhotoLibrary.shared().performChanges({
-            let creationRequest = PHAssetCreationRequest.forAsset()
-            creationRequest.addResource(with: .video, fileURL: URL(fileURLWithPath: videoFile!.local.path), options: nil)
-        }) { success, error in
-            print(error?.localizedDescription ?? "success")
         }
     }
 }
