@@ -20,6 +20,8 @@ class MediaController: ObservableObject {
     
     private var backgroundTaskID: UIBackgroundTaskIdentifier = .invalid
     
+    private var commandCenter: MPRemoteCommandCenter!
+    
     private init() {
         setupAudioSession()
         setupNowPlaying()
@@ -50,7 +52,7 @@ class MediaController: ObservableObject {
     }
 
     private func setupRemoteCommands() {
-        let commandCenter = MPRemoteCommandCenter.shared()
+        commandCenter = MPRemoteCommandCenter.shared()
 
         commandCenter.playCommand.addTarget { [weak self] event in
             self?.handlePlayCommand()
@@ -162,11 +164,21 @@ class MediaController: ObservableObject {
         setPlaying(play)
     }
     
+    // Modify setPlaying method
     func setPlaying(_ play: Bool) {
+        guard var nowPlayingInfo = MPNowPlayingInfoCenter.default().nowPlayingInfo else { return }
+        
+        // Update playback rate
+        nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = play ? 1.0 : 0.0
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+        
+        // Update command center state
         if play {
-            
+            commandCenter.playCommand.isEnabled = false
+            commandCenter.pauseCommand.isEnabled = true
         } else {
-            
+            commandCenter.playCommand.isEnabled = true
+            commandCenter.pauseCommand.isEnabled = false
         }
     }
     
