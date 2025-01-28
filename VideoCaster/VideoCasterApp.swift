@@ -23,15 +23,5 @@ struct VideoCasterApp: App {
             ContentView()
                 .environmentObject(telegramManager)
         }
-        .onChange(of: scenePhase) { newPhase in
-            switch newPhase {
-            case .active:
-                LocalHTTPServer.shared.endBackgroundTask()
-            case .background:
-                LocalHTTPServer.shared.beginBackgroundTask()
-            default:
-                break
-            }
-        }
     }
 }

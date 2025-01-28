@@ -15,7 +15,11 @@ class MediaController: ObservableObject {
     static let shared = MediaController() // Singleton instance
     
     private var silentPlayer: AVAudioPlayer?
-
+    
+    private var isPlaying: Bool = false
+    
+    private var backgroundTaskID: UIBackgroundTaskIdentifier = .invalid
+    
     private init() {
         setupAudioSession()
         setupNowPlaying()
@@ -30,7 +34,7 @@ class MediaController: ObservableObject {
 
     private func setupAudioSession() {
         do {
-            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [])
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, policy: .longFormAudio)
             try AVAudioSession.sharedInstance().setActive(true)
             print("Audio session activated.")
         } catch {
@@ -136,7 +140,6 @@ class MediaController: ObservableObject {
         nowPlayingInfo[MPMediaItemPropertyTitle] = title
         nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = duration
         nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = 0
-        nowPlayingInfo[MPNowPlayingInfoPropertyDefaultPlaybackRate] = 1.0 // Assuming playback starts immediately
         nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 1.0
 
         if let thumbnail = thumbnail {
@@ -153,18 +156,25 @@ class MediaController: ObservableObject {
         print("Now Playing Info Set: \(nowPlayingInfo)")
     }
     
+    func setPlayingOnce(_ play: Bool) {
+        if isPlaying == play { return }
+        isPlaying = play
+        setPlaying(play)
+    }
+    
     func setPlaying(_ play: Bool) {
-        MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPNowPlayingInfoPropertyPlaybackRate] = play ? 1.0 : 0.0
         if play {
-            silentPlayer?.play()
+            
         } else {
-            silentPlayer?.pause()
+            
         }
     }
     
     func stop() {
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
+        isPlaying = false
         silentPlayer?.stop()
+        try? AVAudioSession.sharedInstance().setActive(false)
         print("Now Playing Info Cleared.")
     }
 

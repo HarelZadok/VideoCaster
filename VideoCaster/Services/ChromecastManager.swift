@@ -98,7 +98,7 @@ class ChromecastManager {
         }
         
         MediaController.shared.updatePlaybackPosition(to: getCurrentTime())
-        MediaController.shared.setPlaying(isPlaying())
+        MediaController.shared.setPlayingOnce(isPlaying())
         return false
     }
     

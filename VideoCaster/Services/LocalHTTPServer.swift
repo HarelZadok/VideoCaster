@@ -158,21 +158,4 @@ class LocalHTTPServer {
         }
         convertingFile = false
     }
-    
-    func beginBackgroundTask() {
-        guard backgroundTask == .invalid else {
-            return
-        }
-        
-        backgroundTask = UIApplication.shared.beginBackgroundTask(withName: "LocalHTTPServerBackgroundTask") {
-            self.endBackgroundTask()
-        }
-    }
-
-    func endBackgroundTask() {
-        if backgroundTask != .invalid {
-            UIApplication.shared.endBackgroundTask(backgroundTask)
-            backgroundTask = .invalid
-        }
-    }
 }
