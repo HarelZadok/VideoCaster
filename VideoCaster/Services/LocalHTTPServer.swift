@@ -51,6 +51,7 @@ class LocalHTTPServer {
             let response = GCDWebServerFileResponse(file: url.path, byteRange: request.byteRange, isAttachment: false)
             response?.setValue("bytes", forAdditionalHeader: "Accept-Ranges")
             response?.contentType = "video/mp4"
+            response?.setValue("keep-alive", forAdditionalHeader: "Connection")
             response?.setValue("inline; filename=\"video.mp4\"", forAdditionalHeader: "Content-Disposition")
             return response
         }
@@ -72,7 +73,6 @@ class LocalHTTPServer {
             ])
             if let serverURL = self.webServer.serverURL {
                 self.notifyServerStateChange(true)
-                self.beginBackgroundTask(UIApplication.shared)
                 
                 UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { success, error in
                     if success {
@@ -113,7 +113,6 @@ class LocalHTTPServer {
     func stopServer() {
         webServer.stop()
         self.notifyServerStateChange(false)
-        self.endBackgroundTask(UIApplication.shared)
     }
     
     func isServerRunning() -> Bool {
@@ -126,7 +125,7 @@ class LocalHTTPServer {
     
     func convertToMP4IfNeeded(url: URL, completion: @escaping (URL?) -> Void) {
         // Check if the file is already in MP4 format
-        if url.pathExtension.lowercased() == "mp4" {
+        if url.pathExtension.lowercased() != "mkv" {
             completion(url) // No conversion needed
             return
         }
@@ -160,19 +159,19 @@ class LocalHTTPServer {
         convertingFile = false
     }
     
-    func beginBackgroundTask(_ application: UIApplication) {
+    func beginBackgroundTask() {
         guard backgroundTask == .invalid else {
             return
         }
         
-        backgroundTask = application.beginBackgroundTask(withName: "LocalHTTPServerBackgroundTask") {
-            self.endBackgroundTask(application)
+        backgroundTask = UIApplication.shared.beginBackgroundTask(withName: "LocalHTTPServerBackgroundTask") {
+            self.endBackgroundTask()
         }
     }
 
-    func endBackgroundTask(_ application: UIApplication) {
+    func endBackgroundTask() {
         if backgroundTask != .invalid {
-            application.endBackgroundTask(backgroundTask)
+            UIApplication.shared.endBackgroundTask(backgroundTask)
             backgroundTask = .invalid
         }
     }

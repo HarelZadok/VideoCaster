@@ -1,0 +1,178 @@
+//
+//  ChromecastManager.swift
+//  VideoCaster
+//
+//  Created by Harel Zadok on 28/01/2025.
+//
+
+import SwiftUI
+import Photos
+import GoogleCast
+
+@MainActor
+class ChromecastManager {
+    private static var title: String = ""
+    private static var url: URL?
+    
+    static func setupGoogleCast() {
+        let discoveryCriteria = GCKDiscoveryCriteria(applicationID: kGCKDefaultMediaReceiverApplicationID)
+        let options = GCKCastOptions(discoveryCriteria: discoveryCriteria)
+        options.suspendSessionsWhenBackgrounded = false
+        options.physicalVolumeButtonsWillControlDeviceVolume = true
+        GCKCastContext.setSharedInstanceWith(options)
+    }
+    
+    static func castVideo(withFileAt url: URL, thumbnail: UIImage?) {
+        guard let currentCastSession = GCKCastContext.sharedInstance().sessionManager.currentCastSession else {
+            GCKCastContext.sharedInstance().presentCastDialog()
+            return
+        }
+
+        // Start the local server
+        LocalHTTPServer.shared.startServer(withFileAt: url, thumbnail: thumbnail) { localURL in
+            guard let localURL = localURL else {
+                print("Failed to create local URL")
+                return
+            }
+
+            Task {
+                // Fetch video duration
+                let asset = AVAsset(url: url)
+                let duration = try await asset.load(.duration)
+
+                // Create Media Metadata
+                let metadata = GCKMediaMetadata()
+                metadata.setString(url.lastPathComponent, forKey: kGCKMetadataKeyTitle)
+                metadata.addImage(GCKImage(url: localURL.appendingPathComponent("thumbnail.jpg"), width: 480, height: 360))
+                
+                // Use GCKMediaInformationBuilder
+                let mediaInfoBuilder = GCKMediaInformationBuilder(contentURL: localURL.appendingPathComponent("video.mp4"))
+                mediaInfoBuilder.streamType = GCKMediaStreamType.buffered
+                mediaInfoBuilder.contentType = "video/mp4"
+                mediaInfoBuilder.metadata = metadata
+                mediaInfoBuilder.streamDuration = duration.seconds
+                let mediaInfo = mediaInfoBuilder.build()
+                
+                let castStyle = GCKUIStyle.sharedInstance()
+                castStyle.castViews.mediaControl.expandedController.backgroundColor = .systemBackground
+                castStyle.castViews.mediaControl.sliderSecondaryProgressColor = .secondarySystemBackground
+                castStyle.castViews.mediaControl.sliderProgressColor = UIColor(telegramColor)
+                castStyle.apply()
+                
+                // Cast the video to Chromecast
+                currentCastSession.remoteMediaClient?.loadMedia(mediaInfo)
+                GCKCastContext.sharedInstance().presentDefaultExpandedMediaControls()
+                GCKCastContext.sharedInstance().useDefaultExpandedMediaControls = true
+                
+                self.title = url.lastPathComponent
+                self.url = localURL.appendingPathComponent("video.mp4")
+            }
+        }
+    }
+    
+    static func stopCasting() {
+        GCKCastContext.sharedInstance().sessionManager.endSessionAndStopCasting(true)
+    }
+    
+    static func isCasting() -> Bool {
+        return GCKCastContext.sharedInstance().sessionManager.hasConnectedCastSession()
+    }
+    
+    static func pause() {
+        GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient?.pause()
+    }
+    
+    static func play() {
+        GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient?.play()
+    }
+    
+    static func isPlaying() -> Bool {
+        guard let mediaStatus = GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient?.mediaStatus else {
+            return false
+        }
+        return mediaStatus.playerState == .playing
+    }
+    
+    static func isPaused() -> Bool {
+        guard let mediaStatus = GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient?.mediaStatus else {
+            return false
+        }
+        return mediaStatus.playerState == .paused
+    }
+    
+    static func isBuffering() -> Bool {
+        guard let mediaStatus = GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient?.mediaStatus else {
+            return false
+        }
+        return mediaStatus.playerState == .buffering
+    }
+    
+    static func getCurrentTime() -> Double {
+        guard let mediaClient = GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient else {
+            return 0
+        }
+        return Double(mediaClient.approximateStreamPosition())
+    }
+    
+    static func getCurrentTimeInt() -> Int {
+        guard let mediaClient = GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient else {
+            return 0
+        }
+        return Int(mediaClient.approximateStreamPosition())
+    }
+    
+    static func seekTo(_ time: Double) {
+        let options = GCKMediaSeekOptions()
+        options.interval = .init(floatLiteral: time)
+        GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient?.seek(with: options)
+    }
+    
+    static func seekToRelative(_ time: Double) {
+        let options = GCKMediaSeekOptions()
+        options.interval = .init(floatLiteral: time)
+        options.relative = true
+        GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient?.seek(with: options)
+    }
+    
+    static func seekToEnd() {
+        let options = GCKMediaSeekOptions()
+        options.seekToInfinite = true
+        GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient?.seek(with: options)
+    }
+    
+    static func setVolume(_ volume: Float) {
+        GCKCastContext.sharedInstance().sessionManager.currentCastSession?.setDeviceVolume(volume)
+    }
+    
+    static func showFullScreenUI() {
+        GCKCastContext.sharedInstance().presentDefaultExpandedMediaControls()
+    }
+    
+    static func getDuration() -> Double {
+        guard let duration = GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient?.mediaStatus?.mediaInformation?.streamDuration
+        else {
+            return 0
+        }
+        return Double(duration)
+    }
+    
+    static func getLength() -> Double {
+        return getDuration()
+    }
+    
+    static func getURL() -> URL? {
+        return url
+    }
+    
+    static func isLivestream() -> Bool {
+        guard let isLive = GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient?.isPlayingLiveStream
+        else {
+            return false
+        }
+        return isLive
+    }
+    
+    static func getTitle() -> String {
+        return title
+    }
+}

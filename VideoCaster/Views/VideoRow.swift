@@ -11,7 +11,6 @@ import Photos
 
 struct VideoRow: View {
     let video: Video
-    @State private var showError = false
     @State private var isCastModalPresented = false
     
     var body: some View {
@@ -45,9 +44,6 @@ struct VideoRow: View {
                         .foregroundColor(.secondary)
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
-                .alert(isPresented: $showError) {
-                    Alert(title: Text("Could not cast video"), message: Text("Please connect to a chromecast device and try again."))
-                }
             }
             .padding(.vertical, 5)
         }
@@ -61,48 +57,6 @@ struct VideoRow: View {
     }
     
     private func castVideo() {
-        guard let currentCastSession = GCKCastContext.sharedInstance().sessionManager.currentCastSession else {
-            GCKCastContext.sharedInstance().presentCastDialog()
-            return
-        }
-
-        // Start the local server
-        LocalHTTPServer.shared.startServer(withFileAt: video.url, thumbnail: video.thumbnail) { localURL in
-            guard let localURL = localURL else {
-                print("Failed to create local URL")
-                showError = true
-                return
-            }
-
-            Task {
-                // Fetch video duration
-                let asset = AVAsset(url: video.url)
-                let duration = try await asset.load(.duration)
-
-                // Create Media Metadata
-                let metadata = GCKMediaMetadata()
-                metadata.setString(video.url.lastPathComponent, forKey: kGCKMetadataKeyTitle)
-                metadata.addImage(GCKImage(url: localURL.appendingPathComponent("thumbnail.jpg"), width: 480, height: 360))
-                
-                // Use GCKMediaInformationBuilder
-                let mediaInfoBuilder = GCKMediaInformationBuilder(contentURL: localURL.appendingPathComponent("video.mp4"))
-                mediaInfoBuilder.streamType = GCKMediaStreamType.buffered
-                mediaInfoBuilder.contentType = "video/mp4"
-                mediaInfoBuilder.metadata = metadata
-                mediaInfoBuilder.streamDuration = duration.seconds
-                let mediaInfo = mediaInfoBuilder.build()
-                
-                let castStyle = GCKUIStyle.sharedInstance()
-                castStyle.castViews.mediaControl.expandedController.backgroundColor = .systemBackground
-                castStyle.castViews.mediaControl.sliderSecondaryProgressColor = .secondarySystemBackground
-                castStyle.castViews.mediaControl.sliderProgressColor = UIColor(telegramColor)
-                castStyle.apply()
-                
-                // Cast the video to Chromecast
-                currentCastSession.remoteMediaClient?.loadMedia(mediaInfo)
-                GCKCastContext.sharedInstance().presentDefaultExpandedMediaControls()
-                GCKCastContext.sharedInstance().useDefaultExpandedMediaControls = true
-            }
-        }
+        ChromecastManager.castVideo(withFileAt: video.url, thumbnail: video.thumbnail)
     }
 }

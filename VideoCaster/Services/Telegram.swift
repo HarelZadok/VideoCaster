@@ -34,7 +34,6 @@ class TelegramManager: ObservableObject {
     private let databasePath: URL
     
     private var fileUpdateFunctions: [Int : (File) -> Void] = [:]
-    private var downloadedFileIds: Set<Int> = []
 
     init() {
         self.databasePath = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)
@@ -43,12 +42,9 @@ class TelegramManager: ObservableObject {
         initializeClient()
     }
     
-    init(phoneNumber: String) {
-        self.databasePath = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)
-            .first!
-            .appendingPathComponent("tdlib")
+    convenience init(phoneNumber: String) {
         UserDefaults.standard.set(phoneNumber, forKey: "telegramPhoneNumber")
-        initializeClient()
+        self.init()
     }
 
     private func initializeClient() {
@@ -187,9 +183,24 @@ class TelegramManager: ObservableObject {
     
     func removeCacheFiles() async {
         try! await client?.removeAllFilesFromDownloads(deleteFromCache: true, onlyActive: false, onlyCompleted: false)
-        for id in downloadedFileIds {
-            try! await client?.deleteFile(fileId: id)
-            downloadedFileIds.remove(id)
+        
+        let childDirectories = ["videos", "documents", "photos", "thumbnails"]
+        let fileManager = FileManager.default
+
+        for directoryName in childDirectories {
+            let directoryURL = databasePath.appendingPathComponent(directoryName)
+            
+            do {
+                // Check if the directory exists
+                if fileManager.fileExists(atPath: directoryURL.path) {
+                    try fileManager.removeItem(at: directoryURL)
+                    print("Successfully removed '\(directoryName)' directory.")
+                } else {
+                    print("'\(directoryName)' directory does not exist at path: \(directoryURL.path)")
+                }
+            } catch {
+                print("Failed to remove '\(directoryName)' directory: \(error.localizedDescription)")
+            }
         }
     }
     
@@ -264,8 +275,6 @@ class TelegramManager: ObservableObject {
                 priority: 1,
                 synchronous: !async
             )
-            
-            downloadedFileIds.insert(fileId)
             return file
         } catch {
             print("Failed to download image.")

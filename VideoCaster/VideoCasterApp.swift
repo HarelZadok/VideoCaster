@@ -10,12 +10,13 @@ import GoogleCast
 
 @main
 struct VideoCasterApp: App {
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    
     var telegramManager = TelegramManager()
+    @Environment(\.scenePhase) var scenePhase
     
     init () {
-        setupGoogleCast()
+        ChromecastManager.setupGoogleCast()
+        AudioSessionManager.shared.configureAudioSession()
+        UIApplication.shared.beginReceivingRemoteControlEvents()
     }
     
     var body: some Scene {
@@ -23,11 +24,17 @@ struct VideoCasterApp: App {
             ContentView()
                 .environmentObject(telegramManager)
         }
-    }
-    
-    private func setupGoogleCast() {
-        let discoveryCriteria = GCKDiscoveryCriteria(applicationID: kGCKDefaultMediaReceiverApplicationID)
-        let options = GCKCastOptions(discoveryCriteria: discoveryCriteria)
-        GCKCastContext.setSharedInstanceWith(options)
+        .onChange(of: scenePhase) { newPhase in
+            switch newPhase {
+            case .active:
+                LocalHTTPServer.shared.endBackgroundTask()
+                AudioSessionManager.shared.stopSilentAudio()
+            case .background:
+                LocalHTTPServer.shared.beginBackgroundTask()
+                AudioSessionManager.shared.startSilentAudio()
+            default:
+                break
+            }
+        }
     }
 }

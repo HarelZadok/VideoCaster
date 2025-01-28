@@ -197,12 +197,12 @@ struct VideoMessageView: View {
                     test = temp?.link
                     thumbnailFile = tFile
                     thumbnailLoaded = thumbnailFile!.local.isDownloadingCompleted && !thumbnailFile!.local.path.isEmpty
-                    videoLoaded = videoFile?.local.isDownloadingCompleted ?? false
-                    isDownloading = videoFile?.local.isDownloadingActive ?? false || (videoFile?.local.downloadedSize ?? 0) > 0
-                    downloadProgress = Double(videoFile!.local.downloadedSize) / Double(videoFile!.expectedSize)
-                    isDownloadPaused = !videoFile!.local.isDownloadingActive && videoFile!.local.downloadedSize > 0
-                    
-                    videoLoaded = videoFile!.local.isDownloadingCompleted && !videoFile!.local.path.isEmpty
+                    if !videoFile!.local.path.isEmpty && FileManager().fileExists(atPath: videoFile!.local.path) {
+                        isDownloading = videoFile!.local.isDownloadingActive || videoFile!.local.downloadedSize > 0
+                        downloadProgress = Double(videoFile!.local.downloadedSize) / Double(videoFile!.expectedSize)
+                        isDownloadPaused = !videoFile!.local.isDownloadingActive && videoFile!.local.downloadedSize > 0
+                        videoLoaded = videoFile!.local.isDownloadingCompleted && !videoFile!.local.path.isEmpty
+                    }
                     if !videoLoaded {
                         telegramManager.fileListener(fileId: videoFile!.id) { file in
                             downloadProgress = Double(file.local.downloadedSize) / Double(file.expectedSize)
@@ -238,52 +238,11 @@ struct VideoMessageView: View {
     }
     
     private func castVideo() {
-        guard let currentCastSession = GCKCastContext.sharedInstance().sessionManager.currentCastSession else {
-            GCKCastContext.sharedInstance().presentCastDialog()
-            return
-        }
-        
         let path = videoFile!.local.path
         let url = URL(fileURLWithPath: path)
         let thumbnail = UIImage(contentsOfFile: thumbnailFile?.local.path ?? "")
 
-        // Start the local server
-        LocalHTTPServer.shared.startServer(withFileAt: url, thumbnail: thumbnail) { localURL in
-            guard let localURL = localURL else {
-                print("Failed to create local URL")
-                return
-            }
-
-            Task {
-                // Fetch video duration
-                let asset = AVAsset(url: url)
-                let duration = try await asset.load(.duration)
-
-                // Create Media Metadata
-                let metadata = GCKMediaMetadata()
-                metadata.setString(url.lastPathComponent, forKey: kGCKMetadataKeyTitle)
-                metadata.addImage(GCKImage(url: localURL.appendingPathComponent("thumbnail.jpg"), width: 480, height: 360))
-                
-                // Use GCKMediaInformationBuilder
-                let mediaInfoBuilder = GCKMediaInformationBuilder(contentURL: localURL.appendingPathComponent("video.mp4"))
-                mediaInfoBuilder.streamType = GCKMediaStreamType.buffered
-                mediaInfoBuilder.contentType = "video/mp4"
-                mediaInfoBuilder.metadata = metadata
-                mediaInfoBuilder.streamDuration = duration.seconds
-                let mediaInfo = mediaInfoBuilder.build()
-                
-                let castStyle = GCKUIStyle.sharedInstance()
-                castStyle.castViews.mediaControl.expandedController.backgroundColor = .systemBackground
-                castStyle.castViews.mediaControl.sliderSecondaryProgressColor = .secondarySystemBackground
-                castStyle.castViews.mediaControl.sliderProgressColor = UIColor(telegramColor)
-                castStyle.apply()
-                
-                // Cast the video to Chromecast
-                currentCastSession.remoteMediaClient?.loadMedia(mediaInfo)
-                GCKCastContext.sharedInstance().presentDefaultExpandedMediaControls()
-                GCKCastContext.sharedInstance().useDefaultExpandedMediaControls = true
-            }
-        }
+        ChromecastManager.castVideo(withFileAt: url, thumbnail: thumbnail)
     }
     
     func saveVideoToPhotoLibrary() -> Void {
