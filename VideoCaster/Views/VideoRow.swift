@@ -57,6 +57,6 @@ struct VideoRow: View {
     }
     
     private func castVideo() {
-        ChromecastManager.castVideo(withFileAt: video.url, thumbnail: video.thumbnail)
+        ChromecastManager.shared.castVideo(withFileAt: video.url, thumbnail: video.thumbnail)
     }
 }

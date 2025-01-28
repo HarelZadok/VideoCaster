@@ -7,14 +7,16 @@
 
 import SwiftUI
 import Photos
+import MediaPlayer
 import GoogleCast
 
 @MainActor
 class ChromecastManager {
-    private static var title: String = ""
-    private static var url: URL?
+    static let shared = ChromecastManager()
+    private var title: String = ""
+    private var url: URL?
     
-    static func setupGoogleCast() {
+    func setupGoogleCast() {
         let discoveryCriteria = GCKDiscoveryCriteria(applicationID: kGCKDefaultMediaReceiverApplicationID)
         let options = GCKCastOptions(discoveryCriteria: discoveryCriteria)
         options.suspendSessionsWhenBackgrounded = false
@@ -22,7 +24,7 @@ class ChromecastManager {
         GCKCastContext.setSharedInstanceWith(options)
     }
     
-    static func castVideo(withFileAt url: URL, thumbnail: UIImage?) {
+    func castVideo(withFileAt url: URL, thumbnail: UIImage?) {
         guard let currentCastSession = GCKCastContext.sharedInstance().sessionManager.currentCastSession else {
             GCKCastContext.sharedInstance().presentCastDialog()
             return
@@ -66,89 +68,137 @@ class ChromecastManager {
                 
                 self.title = url.lastPathComponent
                 self.url = localURL.appendingPathComponent("video.mp4")
+                
+                MediaController.shared.setVideo(
+                    title: url.lastPathComponent,
+                    duration: self.getDuration(),
+                    thumbnail: thumbnail,
+                    url: localURL.appendingPathComponent("video.mp4")
+                )
+                
+                self.updateMediaController()
             }
         }
     }
     
-    static func stopCasting() {
+    private func updateMediaController() {
+        Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { timer in
+            Task {
+                if await self.updateMediaControllerTask() {
+                    timer.invalidate()
+                }
+            }
+        }
+    }
+    
+    private func updateMediaControllerTask() async -> Bool {
+        if !self.isCasting() || self.isFinished() {
+            MediaController.shared.stop()
+            return true
+        }
+        
+        MediaController.shared.updatePlaybackPosition(to: getCurrentTime())
+        MediaController.shared.setPlaying(isPlaying())
+        return false
+    }
+    
+    func stopCasting() {
         GCKCastContext.sharedInstance().sessionManager.endSessionAndStopCasting(true)
     }
     
-    static func isCasting() -> Bool {
+    func isCasting() -> Bool {
         return GCKCastContext.sharedInstance().sessionManager.hasConnectedCastSession()
     }
     
-    static func pause() {
+    func pause() {
         GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient?.pause()
     }
     
-    static func play() {
+    func play() {
         GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient?.play()
+        updateMediaController()
     }
     
-    static func isPlaying() -> Bool {
+    func isPlaying() -> Bool {
         guard let mediaStatus = GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient?.mediaStatus else {
             return false
         }
         return mediaStatus.playerState == .playing
     }
     
-    static func isPaused() -> Bool {
+    func isPaused() -> Bool {
         guard let mediaStatus = GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient?.mediaStatus else {
             return false
         }
         return mediaStatus.playerState == .paused
     }
     
-    static func isBuffering() -> Bool {
+    func isIdle() -> Bool {
+        guard let mediaStatus = GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient?.mediaStatus else {
+            return false
+        }
+        return mediaStatus.playerState == .idle
+    }
+    
+    func isFinished() -> Bool {
+        return getCurrentTime() >= getDuration()
+    }
+    
+    func isBuffering() -> Bool {
         guard let mediaStatus = GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient?.mediaStatus else {
             return false
         }
         return mediaStatus.playerState == .buffering
     }
     
-    static func getCurrentTime() -> Double {
+    func getCurrentTime() -> Double {
         guard let mediaClient = GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient else {
             return 0
         }
         return Double(mediaClient.approximateStreamPosition())
     }
     
-    static func getCurrentTimeInt() -> Int {
+    func getCurrentTimeInt() -> Int {
         guard let mediaClient = GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient else {
             return 0
         }
         return Int(mediaClient.approximateStreamPosition())
     }
     
-    static func seekTo(_ time: Double) {
+    func seekTo(_ time: Double) {
         let options = GCKMediaSeekOptions()
         options.interval = .init(floatLiteral: time)
         GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient?.seek(with: options)
     }
     
-    static func seekToRelative(_ time: Double) {
+    func seekToRelative(_ time: Double) {
         let options = GCKMediaSeekOptions()
         options.interval = .init(floatLiteral: time)
         options.relative = true
         GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient?.seek(with: options)
     }
     
-    static func seekToEnd() {
+    func seekToEnd() {
         let options = GCKMediaSeekOptions()
         options.seekToInfinite = true
         GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient?.seek(with: options)
     }
     
-    static func setVolume(_ volume: Float) {
+    func seekToStart() {
+        let options = GCKMediaSeekOptions()
+        options.interval = .init(floatLiteral: 0)
+        GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient?.seek(with: options)
+    }
+    
+    func setVolume(_ volume: Float) {
         GCKCastContext.sharedInstance().sessionManager.currentCastSession?.setDeviceVolume(volume)
     }
     
-    static func showFullScreenUI() {
+    func showFullScreenUI() {
         GCKCastContext.sharedInstance().presentDefaultExpandedMediaControls()
     }
     
-    static func getDuration() -> Double {
+    func getDuration() -> Double {
         guard let duration = GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient?.mediaStatus?.mediaInformation?.streamDuration
         else {
             return 0
@@ -156,15 +206,15 @@ class ChromecastManager {
         return Double(duration)
     }
     
-    static func getLength() -> Double {
+    func getLength() -> Double {
         return getDuration()
     }
     
-    static func getURL() -> URL? {
+    func getURL() -> URL? {
         return url
     }
     
-    static func isLivestream() -> Bool {
+    func isLivestream() -> Bool {
         guard let isLive = GCKCastContext.sharedInstance().sessionManager.currentCastSession?.remoteMediaClient?.isPlayingLiveStream
         else {
             return false
@@ -172,7 +222,7 @@ class ChromecastManager {
         return isLive
     }
     
-    static func getTitle() -> String {
+    func getTitle() -> String {
         return title
     }
 }

@@ -253,6 +253,6 @@ struct DocumentMessageView: View {
         let url = URL(fileURLWithPath: path)
         let thumbnail = UIImage(contentsOfFile: thumbnailFile?.local.path ?? "")
         
-        ChromecastManager.castVideo(withFileAt: url, thumbnail: thumbnail)
+        ChromecastManager.shared.castVideo(withFileAt: url, thumbnail: thumbnail)
     }
 }

@@ -14,8 +14,7 @@ struct VideoCasterApp: App {
     @Environment(\.scenePhase) var scenePhase
     
     init () {
-        ChromecastManager.setupGoogleCast()
-        AudioSessionManager.shared.configureAudioSession()
+        ChromecastManager.shared.setupGoogleCast()
         UIApplication.shared.beginReceivingRemoteControlEvents()
     }
     
@@ -28,10 +27,8 @@ struct VideoCasterApp: App {
             switch newPhase {
             case .active:
                 LocalHTTPServer.shared.endBackgroundTask()
-                AudioSessionManager.shared.stopSilentAudio()
             case .background:
                 LocalHTTPServer.shared.beginBackgroundTask()
-                AudioSessionManager.shared.startSilentAudio()
             default:
                 break
             }
