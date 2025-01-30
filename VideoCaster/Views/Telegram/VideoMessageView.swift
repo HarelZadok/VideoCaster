@@ -22,7 +22,6 @@ struct VideoMessageView: View {
     @State var downloadProgress: Double = 0
     @State var isDownloading: Bool = false
     @State var isDownloadPaused: Bool = false
-    @State var test: String? = nil
     let isSent: Bool
     let senderId: MessageSender?
     let prevMessageSenderId: MessageSender?
@@ -194,7 +193,6 @@ struct VideoMessageView: View {
                 videoFile = await telegramManager.getFile(fileId: video?.video.id ?? -1)
                 let temp = try await telegramManager.client?.getMessageLink(chatId: chatId, forAlbum: false, inMessageThread: false, mediaTimestamp: 0, messageId: messageId!)
                 DispatchQueue.main.async {
-                    test = temp?.link
                     thumbnailFile = tFile
                     thumbnailLoaded = thumbnailFile!.local.isDownloadingCompleted && !thumbnailFile!.local.path.isEmpty
                     if !videoFile!.local.path.isEmpty && FileManager().fileExists(atPath: videoFile!.local.path) {

@@ -272,9 +272,10 @@ class TelegramManager: ObservableObject {
                 fileId: fileId,
                 limit: limit,
                 offset: offset,
-                priority: 1,
+                priority: 32,
                 synchronous: !async
             )
+            
             return file
         } catch {
             print("Failed to download image.")

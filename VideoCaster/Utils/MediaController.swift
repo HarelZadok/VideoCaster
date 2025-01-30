@@ -26,7 +26,6 @@ class MediaController: ObservableObject {
         setupAudioSession()
         setupNowPlaying()
         setupRemoteCommands()
-        startSilentAudio()
     }
 
     // Computed property to expose nowPlayingInfo
@@ -138,6 +137,8 @@ class MediaController: ObservableObject {
                   duration: TimeInterval,
                   thumbnail: UIImage?,
                   url: URL) {
+        startSilentAudio()
+        
         var nowPlayingInfo: [String: Any] = [:]
         nowPlayingInfo[MPMediaItemPropertyTitle] = title
         nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = duration

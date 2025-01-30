@@ -13,16 +13,16 @@ struct ContentView: View {
     var body: some View {
         TabView {
             Group {
-                VideoListScreen()
-                    .tabItem {
-                        Image(systemName: "play.tv")
-                        Text("Gallery")
-                    }
-                    .tag(0)
                 TelegramScreen()
                     .tabItem {
                         Image(uiImage: Awesome.Brand.telegramPlane.asImage(size: 36))
                         Text("Telegram")
+                    }
+                    .tag(0)
+                VideoListScreen()
+                    .tabItem {
+                        Image(systemName: "play.tv")
+                        Text("Gallery")
                     }
                     .tag(1)
             }
